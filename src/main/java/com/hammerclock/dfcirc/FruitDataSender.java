@@ -196,7 +196,7 @@ public class FruitDataSender implements Runnable {
          FruitData fruitEntry = sortedFruitData.get(i);
 
          if (!fruitEntry.devilFruitStatus.isPresent() || fruitEntry.devilFruitStatus.get() == Status.LOST) {
-            if (batchFruit.size() == 5 || i == sortedFruitData.size() - 1) {
+            if (batchFruit.size() == 5) {
                eb.addField("", String.join("\n", batchFruit), true);
                batchFruit.clear();
             }
@@ -204,6 +204,8 @@ public class FruitDataSender implements Runnable {
             batchFruit.add(this.formatWithDecoration(jda, fruitEntry));
          }
       }
+
+      eb.addField("", String.join("\n", batchFruit), true);
 
       return eb;
    }
@@ -217,8 +219,9 @@ public class FruitDataSender implements Runnable {
 
       for (int i = 0; i < sortedFruitData.size(); i++) {
          FruitData fruitEntry = sortedFruitData.get(i);
+
          if (fruitEntry.devilFruitStatus.isPresent() && fruitEntry.devilFruitStatus.get() != Status.LOST) {
-            if (batchFruit.size() == 5 || i == sortedFruitData.size() - 1) {
+            if (batchFruit.size() == 5) {
                eb.addField("", String.join("\n", batchFruit), true);
                batchFruit.clear();
             }
@@ -226,6 +229,8 @@ public class FruitDataSender implements Runnable {
             batchFruit.add(this.formatWithDecoration(jda, fruitEntry));
          }
       }
+
+      eb.addField("", String.join("\n", batchFruit), true);
 
       return eb;
    }
