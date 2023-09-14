@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -137,13 +138,13 @@ public class FruitDataSender implements Runnable {
 
             switch (fruitEntry.getDevilFruitTier()) {
                case GOLD:
-                  formattedString = String.format("%s%s", goldBoxEmoji, fruitEntry.getDevilFruitName());
+                  formattedString = String.format("%s**%s**", goldBoxEmoji, fruitEntry.getDevilFruitName());
                   break;
                case IRON:
-                  formattedString = String.format("%s%s", ironBoxEmoji, fruitEntry.getDevilFruitName());
+                  formattedString = String.format("%s**%s**", ironBoxEmoji, fruitEntry.getDevilFruitName());
                   break;
                case WOODEN:
-                  formattedString = String.format("%s%s", woodenBoxEmoji, fruitEntry.getDevilFruitName());
+                  formattedString = String.format("%s**%s**", woodenBoxEmoji, fruitEntry.getDevilFruitName());
                   break;
                default:
                   LOGGER.error(
@@ -184,6 +185,9 @@ public class FruitDataSender implements Runnable {
                   break;
                default:
                   LOGGER.fatal("This should not have happened! Please message DerHammerclock about this!");
+                  LOGGER.fatal(tierFruitData.getDevilFruitName(), tierFruitData.getDevilFruitKey(),
+                        tierFruitData.getDevilFruitStatus().get().toString(),
+                        tierFruitData.getDevilFruitTier().name().toString());
             }
          }
 
@@ -307,7 +311,7 @@ public class FruitDataSender implements Runnable {
                JDA jda = JDABuilder
                      .createDefault(CommonConfig.INSTANCE.getBotToken(), this.intents)
                      .setActivity(Activity.watching("Devil Fruit Circulation"))
-                     .setStatus(OnlineStatus.ONLINE)
+                     .setStatus(OnlineStatus.ONLINE).disableCache(CacheFlag.VOICE_STATE, CacheFlag.SCHEDULED_EVENTS)
                      .build();
                jda.awaitReady();
 
