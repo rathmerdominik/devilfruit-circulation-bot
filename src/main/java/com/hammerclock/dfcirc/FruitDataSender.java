@@ -43,6 +43,7 @@ public class FruitDataSender implements Runnable {
    private static final Logger LOGGER = LogManager.getLogger();
    private AtomicBoolean running = new AtomicBoolean(false);
    private AtomicBoolean stopped = new AtomicBoolean(true);
+   private JDA jda;
    private Thread worker;
    EnumSet<GatewayIntent> intents;
 
@@ -57,6 +58,8 @@ public class FruitDataSender implements Runnable {
    }
 
    public void stop() {
+      LOGGER.info("Shutting down Devil Fruit Circulation bot");
+      this.jda.shutdown();
       this.running.set(false);
    }
 
@@ -308,7 +311,7 @@ public class FruitDataSender implements Runnable {
          HashMap<String, FruitData> fruitData = this.getFruitData();
          if (!this.areFruitDataSame(oldFruitData, fruitData)) {
             try {
-               JDA jda = JDABuilder
+               this.jda = JDABuilder
                      .createDefault(CommonConfig.INSTANCE.getBotToken(), this.intents)
                      .setActivity(Activity.watching("Devil Fruit Circulation"))
                      .setStatus(OnlineStatus.ONLINE).disableCache(CacheFlag.VOICE_STATE, CacheFlag.SCHEDULED_EVENTS)
