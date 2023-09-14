@@ -28,6 +28,7 @@ public class CommonConfig {
    private ForgeConfigSpec.ConfigValue<String> embedFooter;
    private ForgeConfigSpec.BooleanValue embedShowLastUpdated;
    private ForgeConfigSpec.BooleanValue embedSortByTier;
+   private ForgeConfigSpec.BooleanValue embedSortByAlphabet;
 
    static {
       Pair<CommonConfig, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder().configure(CommonConfig::new);
@@ -90,7 +91,9 @@ public class CommonConfig {
       this.embedShowLastUpdated = builder.comment("Show a date next to the footer when the embed has been updated")
             .define("Show Last Updated", true);
 
-      this.embedSortByTier = builder.comment("Sort Devil Fruits by their Tier.").define("Sort By Tier", true);
+      this.embedSortByTier = builder.comment("Sort Devil Fruits by their Tier").define("Sort By Tier", true);
+
+      this.embedSortByAlphabet = builder.comment("Sort Devil Fruits by Alphabet").define("Sort by Alphabet", false);
 
       builder.pop();
 
@@ -151,6 +154,10 @@ public class CommonConfig {
 
    public Boolean getEmbedSortByTier() {
       return this.embedSortByTier.get();
+   }
+
+   public Boolean getEmbedSortByAlphabet() {
+      return this.embedSortByAlphabet.get();
    }
 
    public Long getMessageId() {
