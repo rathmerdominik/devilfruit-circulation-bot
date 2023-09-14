@@ -21,6 +21,7 @@ out
 build
 .gradle
 libs/*
+!libs/.gitkeep
 
 # other
 eclipse
