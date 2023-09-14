@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 public class FruitSenderStarter {
    private static final Logger LOGGER = LogManager.getLogger();
    private FruitDataSender sender;
+   private xyz.pixelatedw.mineminenomi.config.CommonConfig mineMineConfig;
 
    public FruitSenderStarter() {
       ModLoadingContext context = ModLoadingContext.get();
@@ -31,9 +32,9 @@ public class FruitSenderStarter {
          this.sender = new FruitDataSender();
          this.sender.start();
       } else {
-         LOGGER.warn("PLEASE SET A BOT TOKEN AND OTHER IMPORTANT INFORMATION IN dfcirc-common.toml\n Refusing to start the Bot!");
+         LOGGER.warn(
+               "PLEASE SET A BOT TOKEN AND OTHER IMPORTANT INFORMATION IN dfcirc-common.toml\n Refusing to start the Bot!");
       }
-
    }
 
    @SubscribeEvent
