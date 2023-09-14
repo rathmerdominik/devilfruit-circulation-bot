@@ -28,18 +28,26 @@ public class FruitSenderStarter {
 
    @SubscribeEvent
    public void onServerStartedEvent(FMLServerStartedEvent event) {
-      if (CommonConfig.INSTANCE.getBotToken() != "") {
-         this.sender = new FruitDataSender();
-         this.sender.start();
+      if (mineMineConfig.hasOneFruitPerWorldExtendedLogic() || mineMineConfig.hasOneFruitPerWorldSimpleLogic()) {
+         if (CommonConfig.INSTANCE.getBotToken() != "") {
+            this.sender = new FruitDataSender();
+            this.sender.start();
+         } else {
+            LOGGER.warn(
+                  "PLEASE SET A BOT TOKEN AND OTHER IMPORTANT INFORMATION IN dfcirc-common.toml\n Refusing to start the Bot!");
+         }
       } else {
-         LOGGER.warn(
-               "PLEASE SET A BOT TOKEN AND OTHER IMPORTANT INFORMATION IN dfcirc-common.toml\n Refusing to start the Bot!");
+         LOGGER.error(
+               "Mine Mine no Mi has One Fruit per World config not set to either SIMPLE or EXTENDED!\nRefusing to start the Bot!");
       }
+
    }
 
    @SubscribeEvent
    public void onServerStoppedEvent(FMLServerStoppedEvent event) {
-      this.sender.stop();
+      if (this.sender != null) {
+         this.sender.stop();
+      }
    }
 
    private void setup(FMLCommonSetupEvent event) {
