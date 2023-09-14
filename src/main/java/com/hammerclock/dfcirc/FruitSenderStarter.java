@@ -17,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 public class FruitSenderStarter {
    private static final Logger LOGGER = LogManager.getLogger();
    private FruitDataSender sender;
-   private xyz.pixelatedw.mineminenomi.config.CommonConfig mineMineConfig;
 
    public FruitSenderStarter() {
       ModLoadingContext context = ModLoadingContext.get();
@@ -28,7 +27,8 @@ public class FruitSenderStarter {
 
    @SubscribeEvent
    public void onServerStartedEvent(FMLServerStartedEvent event) {
-      if (mineMineConfig.hasOneFruitPerWorldExtendedLogic() || mineMineConfig.hasOneFruitPerWorldSimpleLogic()) {
+      if (xyz.pixelatedw.mineminenomi.config.CommonConfig.INSTANCE.hasOneFruitPerWorldExtendedLogic()
+            || xyz.pixelatedw.mineminenomi.config.CommonConfig.INSTANCE.hasOneFruitPerWorldSimpleLogic()) {
          if (CommonConfig.INSTANCE.getBotToken() != "") {
             this.sender = new FruitDataSender();
             this.sender.start();
