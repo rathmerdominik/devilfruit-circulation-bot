@@ -316,16 +316,23 @@ public class FruitDataSender implements Runnable {
       this.stopped.set(false);
       HashMap<String, FruitData> oldFruitData = new HashMap<String, FruitData>();
 
+      this.jda = JDABuilder
+         .createDefault(CommonConfig.INSTANCE.getBotToken(), this.intents)
+         .setActivity(Activity.watching("Devil Fruit Circulation"))
+         .setStatus(OnlineStatus.ONLINE).disableCache(CacheFlag.VOICE_STATE, CacheFlag.SCHEDULED_EVENTS)
+         .build();
+         
+      try{
+         jda.awaitReady();
+      } catch (InterruptedException e) {
+         LOGGER.fatal(String.format("Something stopped JDA from starting: %s", e.getMessage()));
+      }
+
       while (this.running.get()) {
          HashMap<String, FruitData> fruitData = this.getFruitData();
          if (!this.areFruitDataSame(oldFruitData, fruitData)) {
             try {
-               this.jda = JDABuilder
-                     .createDefault(CommonConfig.INSTANCE.getBotToken(), this.intents)
-                     .setActivity(Activity.watching("Devil Fruit Circulation"))
-                     .setStatus(OnlineStatus.ONLINE).disableCache(CacheFlag.VOICE_STATE, CacheFlag.SCHEDULED_EVENTS)
-                     .build();
-               jda.awaitReady();
+ 
 
                Guild guild = jda.getGuildById(CommonConfig.INSTANCE.getGuildId());
                if (guild == null) {
@@ -361,9 +368,7 @@ public class FruitDataSender implements Runnable {
             } catch (InvalidTokenException e) {
                LOGGER.error("INCORRECT BOT TOKEN SUPPLIED! PLEASE FIX IN CONFIG!");
                break;
-            } catch (InterruptedException e) {
-               LOGGER.fatal(String.format("Something stopped JDA from starting: %s", e.getMessage()));
-               break;
+
             } catch (InsufficientPermissionException e) {
                LOGGER.error(String.format("THE BOT IS MISSING NECESSARY PERMISSIONS: %s", e.getMessage()));
                break;
