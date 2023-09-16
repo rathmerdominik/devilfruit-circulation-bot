@@ -59,7 +59,7 @@ public class FruitDataSender implements Runnable {
 
    public void stop() {
       LOGGER.info("Shutting down Devil Fruit Circulation bot");
-      this.jda.shutdown();
+      this.jda.shutdownNow();
       this.running.set(false);
    }
 

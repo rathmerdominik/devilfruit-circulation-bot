@@ -63,7 +63,7 @@ public class CommonConfig {
             Long.MAX_VALUE);
 
       this.showStatus = builder.comment(
-            "Show the current Status of the Fruit as well if it has one\nAvailable Status: LOST, IN_USE, INVENTORY, DROPPED\nDefault: False")
+            "Show the current Status of the Fruit as well if it has one")
             .define("Show Fruit Status", false);
 
       builder.push("Emojis");
