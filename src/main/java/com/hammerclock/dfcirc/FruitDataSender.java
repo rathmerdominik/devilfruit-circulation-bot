@@ -31,7 +31,11 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import net.minecraftforge.fml.ExtensionPoint;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.network.FMLNetworkConstants;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import xyz.pixelatedw.mineminenomi.api.OneFruitEntry;
@@ -49,6 +53,9 @@ public class FruitDataSender implements Runnable {
    EnumSet<GatewayIntent> intents;
 
    public FruitDataSender() {
+      ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.DISPLAYTEST,
+            () -> Pair.of(() -> FMLNetworkConstants.IGNORESERVERONLY, (a, b) -> true));
+            
       this.intents = EnumSet.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
             GatewayIntent.MESSAGE_CONTENT);
    }
@@ -62,7 +69,7 @@ public class FruitDataSender implements Runnable {
       LOGGER.info("Shutting down Devil Fruit Circulation bot");
       this.running.set(false);
       this.jda.shutdown();
-      try{
+      try {
          if (!jda.awaitShutdown(Duration.ofSeconds(10))) {
             jda.shutdownNow(); // Cancel all remaining requests
             jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
@@ -317,12 +324,12 @@ public class FruitDataSender implements Runnable {
       HashMap<String, FruitData> oldFruitData = new HashMap<String, FruitData>();
 
       this.jda = JDABuilder
-         .createDefault(CommonConfig.INSTANCE.getBotToken(), this.intents)
-         .setActivity(Activity.watching("Devil Fruit Circulation"))
-         .setStatus(OnlineStatus.ONLINE).disableCache(CacheFlag.VOICE_STATE, CacheFlag.SCHEDULED_EVENTS)
-         .build();
-         
-      try{
+            .createDefault(CommonConfig.INSTANCE.getBotToken(), this.intents)
+            .setActivity(Activity.watching("Devil Fruit Circulation"))
+            .setStatus(OnlineStatus.ONLINE).disableCache(CacheFlag.VOICE_STATE, CacheFlag.SCHEDULED_EVENTS)
+            .build();
+
+      try {
          jda.awaitReady();
       } catch (InterruptedException e) {
          LOGGER.fatal(String.format("Something stopped JDA from starting: %s", e.getMessage()));
@@ -332,7 +339,6 @@ public class FruitDataSender implements Runnable {
          HashMap<String, FruitData> fruitData = this.getFruitData();
          if (!this.areFruitDataSame(oldFruitData, fruitData)) {
             try {
- 
 
                Guild guild = jda.getGuildById(CommonConfig.INSTANCE.getGuildId());
                if (guild == null) {
