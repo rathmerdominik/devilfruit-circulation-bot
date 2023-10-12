@@ -190,6 +190,8 @@ shadowJar {
 
     configurations = [project.configurations.shadow]
 
+    relocate("okhttp3", "${mod_group_id}.relocated.okhttp3")
+    relocate("net.dv8tion", "${mod_group_id}.relocated.net.dv8tion")
     relocate("gnu.trove", "${mod_group_id}.relocated.gnu.trove")
     relocate("org.apache.commons.collections4", "${mod_group_id}.relocated.org.apache.commons.collections4")
     relocate("org.slf4j", "${mod_group_id}.relocated.org.slf4j")
