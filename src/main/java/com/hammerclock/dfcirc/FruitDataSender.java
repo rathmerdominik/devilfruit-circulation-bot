@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import okhttp3.OkHttpClient;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +46,6 @@ import xyz.pixelatedw.mineminenomi.items.AkumaNoMiItem;
 public class FruitDataSender implements Runnable {
    private static final Logger LOGGER = LogManager.getLogger();
    private AtomicBoolean running = new AtomicBoolean(false);
-   private AtomicBoolean stopped = new AtomicBoolean(true);
    private JDA jda;
    private Thread worker;
    EnumSet<GatewayIntent> intents;
@@ -61,31 +61,24 @@ public class FruitDataSender implements Runnable {
    }
 
    @SuppressWarnings("null")
-   public void stop() {
-      LOGGER.info("Shutting down Devil Fruit Circulation bot");
-      this.running.set(false);
-      this.jda.shutdown();
-      try {
-         if (!jda.awaitShutdown(Duration.ofSeconds(10))) {
-            jda.shutdownNow(); // Cancel all remaining requests
-            jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
-         }
-      } catch (InterruptedException e) {
-         LOGGER.warn(e.getMessage());
-      }
-   }
-
    public void interrupt() {
+      this.jda.shutdown();
+		OkHttpClient client = jda.getHttpClient();
+		try {
+			if (!this.jda.awaitShutdown(Duration.ofSeconds(5))) {
+				client.connectionPool().evictAll();
+				client.dispatcher().executorService().shutdown();
+			}
+		} catch (InterruptedException e) {
+			LOGGER.warn(e.getMessage());
+		}
       this.running.set(false);
       this.worker.interrupt();
+      LOGGER.info("Devil Fruit Circulation bot successfully shut down!");
    }
 
    boolean isRunning() {
       return this.running.get();
-   }
-
-   boolean isStopped() {
-      return this.stopped.get();
    }
 
    public boolean areFruitDataSame(HashMap<String, FruitData> oldFruitData, HashMap<String, FruitData> newFruitData) {
@@ -320,7 +313,6 @@ public class FruitDataSender implements Runnable {
    @SuppressWarnings("null")
    public void run() {
       this.running.set(true);
-      this.stopped.set(false);
       HashMap<String, FruitData> oldFruitData = new HashMap<String, FruitData>();
 
       this.jda = JDABuilder
@@ -374,7 +366,6 @@ public class FruitDataSender implements Runnable {
             } catch (InvalidTokenException e) {
                LOGGER.error("INCORRECT BOT TOKEN SUPPLIED! PLEASE FIX IN CONFIG!");
                break;
-
             } catch (InsufficientPermissionException e) {
                LOGGER.error(String.format("THE BOT IS MISSING NECESSARY PERMISSIONS: %s", e.getMessage()));
                break;
@@ -385,6 +376,5 @@ public class FruitDataSender implements Runnable {
             }
          }
       }
-      this.stopped.set(true);
    }
 }
