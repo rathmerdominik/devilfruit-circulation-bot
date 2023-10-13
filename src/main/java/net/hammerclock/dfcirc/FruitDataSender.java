@@ -1,9 +1,9 @@
-package com.hammerclock.dfcirc;
+package net.hammerclock.dfcirc;
 
-import com.hammerclock.dfcirc.config.CommonConfig;
-import com.hammerclock.dfcirc.types.BotMode;
-import com.hammerclock.dfcirc.types.FruitData;
-import com.hammerclock.dfcirc.types.TierBox;
+import net.hammerclock.dfcirc.config.CommonConfig;
+import net.hammerclock.dfcirc.types.BotMode;
+import net.hammerclock.dfcirc.types.FruitData;
+import net.hammerclock.dfcirc.types.TierBox;
 
 import java.awt.Color;
 import java.time.Duration;
@@ -63,15 +63,15 @@ public class FruitDataSender implements Runnable {
    @SuppressWarnings("null")
    public void interrupt() {
       this.jda.shutdown();
-		OkHttpClient client = jda.getHttpClient();
-		try {
-			if (!this.jda.awaitShutdown(Duration.ofSeconds(5))) {
-				client.connectionPool().evictAll();
-				client.dispatcher().executorService().shutdown();
-			}
-		} catch (InterruptedException e) {
-			LOGGER.warn(e.getMessage());
-		}
+      OkHttpClient client = jda.getHttpClient();
+      try {
+         if (!this.jda.awaitShutdown(Duration.ofSeconds(5))) {
+            client.connectionPool().evictAll();
+            client.dispatcher().executorService().shutdown();
+         }
+      } catch (InterruptedException e) {
+         LOGGER.warn(e.getMessage());
+      }
       this.running.set(false);
       this.worker.interrupt();
       LOGGER.info("Devil Fruit Circulation bot successfully shut down!");
@@ -258,7 +258,7 @@ public class FruitDataSender implements Runnable {
 
       ArrayList<FruitData> sortedFruitData = this.sortFruits(fruitData);
 
-      List<String> batchFruit = new ArrayList< String>();
+      List<String> batchFruit = new ArrayList<String>();
 
       for (int i = 0; i < sortedFruitData.size(); i++) {
          FruitData fruitEntry = sortedFruitData.get(i);

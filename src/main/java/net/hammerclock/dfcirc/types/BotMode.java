@@ -1,4 +1,4 @@
-package com.hammerclock.dfcirc.types;
+package net.hammerclock.dfcirc.types;
 
 public enum BotMode {
    ONLY_SHOW_AVAILABLE,

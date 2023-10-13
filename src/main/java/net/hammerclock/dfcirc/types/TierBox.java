@@ -1,4 +1,4 @@
-package com.hammerclock.dfcirc.types;
+package net.hammerclock.dfcirc.types;
 
 public enum TierBox {
    WOODEN(3),

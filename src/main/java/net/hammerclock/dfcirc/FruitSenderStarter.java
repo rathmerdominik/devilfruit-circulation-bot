@@ -1,6 +1,6 @@
-package com.hammerclock.dfcirc;
+package net.hammerclock.dfcirc;
 
-import com.hammerclock.dfcirc.config.CommonConfig;
+import net.hammerclock.dfcirc.config.CommonConfig;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
