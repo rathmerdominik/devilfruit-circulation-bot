@@ -1,13 +1,10 @@
 package net.hammerclock.dfcirc;
 
-import net.hammerclock.dfcirc.config.CommonConfig;
-import net.hammerclock.dfcirc.types.BotMode;
-import net.hammerclock.dfcirc.types.FruitData;
-import net.hammerclock.dfcirc.types.TierBox;
-
 import java.awt.Color;
+
 import java.time.Duration;
 import java.time.OffsetDateTime;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,7 +13,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -25,17 +27,19 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import okhttp3.OkHttpClient;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.hammerclock.dfcirc.config.CommonConfig;
+import net.hammerclock.dfcirc.types.BotMode;
+import net.hammerclock.dfcirc.types.FruitData;
+import net.hammerclock.dfcirc.types.TierBox;
+
+import okhttp3.OkHttpClient;
 
 import xyz.pixelatedw.mineminenomi.api.OneFruitEntry;
 import xyz.pixelatedw.mineminenomi.api.OneFruitEntry.Status;
@@ -71,37 +75,30 @@ public class FruitDataSender implements Runnable {
          }
       } catch (InterruptedException e) {
          LOGGER.warn(e.getMessage());
+         Thread.currentThread().interrupt();
       }
       this.running.set(false);
       this.worker.interrupt();
       LOGGER.info("Devil Fruit Circulation bot successfully shut down!");
    }
 
-   boolean isRunning() {
+   public boolean isRunning() {
       return this.running.get();
    }
 
-   public boolean areFruitDataSame(HashMap<String, FruitData> oldFruitData, HashMap<String, FruitData> newFruitData) {
+   private boolean areFruitDataSame(Map<String, FruitData> oldFruitData, Map<String, FruitData> newFruitData) {
       if (!oldFruitData.isEmpty() && !newFruitData.isEmpty()) {
 
          for (Map.Entry<String, FruitData> newFruit : newFruitData.entrySet()) {
-            String newFruitKey = (String) newFruit.getKey();
+            String newFruitKey = newFruit.getKey();
 
-            String oldFruitStatus;
-            try {
-               oldFruitStatus = oldFruitData.get(newFruitKey).getDevilFruitStatus().get().name().toString();
-            } catch (NoSuchElementException e) {
-               oldFruitStatus = "";
-            }
+            Optional<Status> oldOptionalStatus = oldFruitData.get(newFruitKey).getDevilFruitStatus();
+            String oldFruitStatus = oldOptionalStatus.isPresent() ? oldOptionalStatus.get().name() : "";
 
-            String newFruitStatus;
-            try {
-               newFruitStatus = newFruit.getValue().getDevilFruitStatus().get().name().toString();
-            } catch (NoSuchElementException e) {
-               newFruitStatus = "";
-            }
+            Optional<Status> newOptionalStatus = newFruit.getValue().getDevilFruitStatus();
+            String newFruitStatus = newOptionalStatus.isPresent() ? newOptionalStatus.get().name() : "";
 
-            if (oldFruitStatus != newFruitStatus) {
+            if (!Objects.equals(oldFruitStatus, newFruitStatus)) {
                return false;
             }
          }
@@ -111,8 +108,8 @@ public class FruitDataSender implements Runnable {
       }
    }
 
-   public HashMap<String, FruitData> getFruitData() {
-      HashMap<String, FruitData> fruitDataMap = new HashMap<String, FruitData>();
+   private Map<String, FruitData> getFruitData() {
+      HashMap<String, FruitData> fruitDataMap = new HashMap<>();
       ExtendedWorldData extendedWorldData = ExtendedWorldData.get();
 
       if (extendedWorldData != null) {
@@ -126,7 +123,8 @@ public class FruitDataSender implements Runnable {
                status = entry.getStatus();
             }
 
-            FruitData fruitData = new FruitData(fruit.getDevilFruitName(), fruit.getFruitKey(), status,
+            FruitData fruitData = new FruitData(fruit.getDevilFruitName(),
+                  fruit.getFruitKey(), status,
                   TierBox.values()[fruit.getTier() - 1]);
             fruitDataMap.put(fruit.getFruitKey(), fruitData);
          }
@@ -136,47 +134,57 @@ public class FruitDataSender implements Runnable {
    }
 
    @SuppressWarnings("null")
-   public String formatWithDecoration(JDA jda, FruitData fruitEntry) {
+   private String formatWithDecoration(JDA jda, FruitData fruitEntry) {
       String formattedString = "";
 
-      if (CommonConfig.INSTANCE.getUseEmojis()) {
-         try {
-            String goldBoxEmoji = jda.getEmojiById(CommonConfig.INSTANCE.getGoldBoxEmojiId()).getAsMention();
-            String ironBoxEmoji = jda.getEmojiById(CommonConfig.INSTANCE.getIronBoxEmojiId()).getAsMention();
-            String woodenBoxEmoji = jda.getEmojiById(CommonConfig.INSTANCE.getWoodenBoxEmojiId()).getAsMention();
+      try {
+         String goldBoxEmoji = jda.getEmojiById(CommonConfig.INSTANCE.getGoldBoxEmojiId()).getAsMention();
+         String ironBoxEmoji = jda.getEmojiById(CommonConfig.INSTANCE.getIronBoxEmojiId()).getAsMention();
+         String woodenBoxEmoji = jda.getEmojiById(CommonConfig.INSTANCE.getWoodenBoxEmojiId()).getAsMention();
 
-            switch (fruitEntry.getDevilFruitTier()) {
-               case GOLD:
-                  formattedString = String.format("%s**%s**", goldBoxEmoji, fruitEntry.getDevilFruitName());
-                  break;
-               case IRON:
-                  formattedString = String.format("%s**%s**", ironBoxEmoji, fruitEntry.getDevilFruitName());
-                  break;
-               case WOODEN:
-                  formattedString = String.format("%s**%s**", woodenBoxEmoji, fruitEntry.getDevilFruitName());
-                  break;
-               default:
-                  LOGGER.error(
-                        "THIS SHOULD NOT HAVE HAPPENED. Something is wrong with the Emoji function. Please report to DerHammerclock!");
-            }
-         } catch (NullPointerException e) {
-            LOGGER.error("One of the Emojis has an invalid ID! " + e.getMessage());
+         String formatString = "%s**%s**";
+         switch (fruitEntry.getDevilFruitTier()) {
+            case GOLD:
+               formattedString = String.format(formatString,
+                     CommonConfig.INSTANCE.getUseEmojis()
+                           ? goldBoxEmoji
+                           : "",
+                     fruitEntry.getDevilFruitName());
+               break;
+            case IRON:
+               formattedString = String.format(formatString, CommonConfig.INSTANCE.getUseEmojis()
+                     ? ironBoxEmoji
+                     : "", fruitEntry.getDevilFruitName());
+               break;
+            case WOODEN:
+               formattedString = String.format(formatString, CommonConfig.INSTANCE.getUseEmojis()
+                     ? woodenBoxEmoji
+                     : "", fruitEntry.getDevilFruitName());
+               break;
+            default:
+               LOGGER.error(
+                     "THIS SHOULD NOT HAVE HAPPENED. Something is wrong with the Emoji function. Please report to DerHammerclock!");
          }
+      } catch (NullPointerException e) {
+         LOGGER.error("One of the Emojis has an invalid ID!");
+         LOGGER.error(e.getMessage());
       }
 
       if (CommonConfig.INSTANCE.getShowStatus()) {
          formattedString = String.format("%s\n__Status:__ %s", formattedString,
-               fruitEntry.getDevilFruitStatus().isPresent() ? fruitEntry.getDevilFruitStatus().get().name() : "Free");
+               fruitEntry.getDevilFruitStatus().isPresent()
+                     ? fruitEntry.getDevilFruitStatus().orElseThrow(IllegalArgumentException::new).name()
+                     : "Free");
       }
 
       return formattedString;
    }
 
-   public ArrayList<FruitData> sortFruits(HashMap<String, FruitData> fruitData) {
+   private List<FruitData> sortFruits(Map<String, FruitData> fruitData) {
       if (CommonConfig.INSTANCE.getEmbedSortByTier() || CommonConfig.INSTANCE.getEmbedSortByAlphabet()) {
-         ArrayList<FruitData> goldBoxFruitData = new ArrayList<FruitData>();
-         ArrayList<FruitData> ironBoxFruitData = new ArrayList<FruitData>();
-         ArrayList<FruitData> woodenBoxFruitData = new ArrayList<FruitData>();
+         ArrayList<FruitData> goldBoxFruitData = new ArrayList<>();
+         ArrayList<FruitData> ironBoxFruitData = new ArrayList<>();
+         ArrayList<FruitData> woodenBoxFruitData = new ArrayList<>();
 
          Comparator<FruitData> nameComparator = Comparator.comparing(FruitData::getDevilFruitName,
                String.CASE_INSENSITIVE_ORDER);
@@ -195,8 +203,7 @@ public class FruitDataSender implements Runnable {
                default:
                   LOGGER.fatal("This should not have happened! Please message DerHammerclock about this!");
                   LOGGER.fatal(tierFruitData.getDevilFruitName(), tierFruitData.getDevilFruitKey(),
-                        tierFruitData.getDevilFruitStatus().get().toString(),
-                        tierFruitData.getDevilFruitTier().name().toString());
+                        tierFruitData.getDevilFruitTier().name());
             }
          }
 
@@ -216,7 +223,7 @@ public class FruitDataSender implements Runnable {
 
          return goldBoxFruitData;
       } else {
-         ArrayList<FruitData> listFruitData = new ArrayList<FruitData>();
+         ArrayList<FruitData> listFruitData = new ArrayList<>();
 
          for (FruitData fruitDataEntry : fruitData.values()) {
             listFruitData.add(fruitDataEntry);
@@ -227,17 +234,18 @@ public class FruitDataSender implements Runnable {
    }
 
    @SuppressWarnings("null")
-   public EmbedBuilder buildEmbedShowAvailable(JDA jda, EmbedBuilder eb, HashMap<String, FruitData> fruitData) {
+   private EmbedBuilder buildEmbedShowAvailable(JDA jda, EmbedBuilder eb, Map<String, FruitData> fruitData) {
       eb.addField("Available Devil Fruits", "", false);
 
-      ArrayList<FruitData> sortedFruitData = this.sortFruits(fruitData);
+      List<FruitData> sortedFruitData = this.sortFruits(fruitData);
 
-      List<String> batchFruit = new ArrayList<String>();
+      List<String> batchFruit = new ArrayList<>();
 
       for (int i = 0; i < sortedFruitData.size(); i++) {
          FruitData fruitEntry = sortedFruitData.get(i);
 
-         if (!fruitEntry.getDevilFruitStatus().isPresent() || fruitEntry.getDevilFruitStatus().get() == Status.LOST) {
+         if (!fruitEntry.getDevilFruitStatus().isPresent()
+               || fruitEntry.getDevilFruitStatus().orElseThrow(IllegalArgumentException::new) == Status.LOST) {
             if (batchFruit.size() == 5) {
                eb.addField("", String.join("\n", batchFruit), true);
                batchFruit.clear();
@@ -253,17 +261,18 @@ public class FruitDataSender implements Runnable {
    }
 
    @SuppressWarnings("null")
-   public EmbedBuilder buildEmbedShowUnavailable(JDA jda, EmbedBuilder eb, HashMap<String, FruitData> fruitData) {
+   private EmbedBuilder buildEmbedShowUnavailable(JDA jda, EmbedBuilder eb, Map<String, FruitData> fruitData) {
       eb.addField("Unavailable Devil Fruits", "", false);
 
-      ArrayList<FruitData> sortedFruitData = this.sortFruits(fruitData);
+      List<FruitData> sortedFruitData = this.sortFruits(fruitData);
 
-      List<String> batchFruit = new ArrayList<String>();
+      List<String> batchFruit = new ArrayList<>();
 
       for (int i = 0; i < sortedFruitData.size(); i++) {
          FruitData fruitEntry = sortedFruitData.get(i);
 
-         if (fruitEntry.getDevilFruitStatus().isPresent() && fruitEntry.getDevilFruitStatus().get() != Status.LOST) {
+         if (fruitEntry.getDevilFruitStatus().isPresent()
+               && fruitEntry.getDevilFruitStatus().orElseThrow(IllegalArgumentException::new) != Status.LOST) {
             if (batchFruit.size() == 5) {
                eb.addField("", String.join("\n", batchFruit), true);
                batchFruit.clear();
@@ -278,14 +287,12 @@ public class FruitDataSender implements Runnable {
       return eb;
    }
 
-   public EmbedBuilder buildEmbedShowBoth(JDA jda, EmbedBuilder eb, HashMap<String, FruitData> fruitData) {
+   private EmbedBuilder buildEmbedShowBoth(JDA jda, EmbedBuilder eb, Map<String, FruitData> fruitData) {
       EmbedBuilder available = this.buildEmbedShowAvailable(jda, eb, fruitData);
-      EmbedBuilder unavailable = this.buildEmbedShowUnavailable(jda, available, fruitData);
-
-      return unavailable;
+      return this.buildEmbedShowUnavailable(jda, available, fruitData);
    }
 
-   public EmbedBuilder buildEmbed(JDA jda, BotMode botMode, HashMap<String, FruitData> fruitData) {
+   private EmbedBuilder buildEmbed(JDA jda, BotMode botMode, Map<String, FruitData> fruitData) {
       EmbedBuilder eb = new EmbedBuilder();
 
       eb.setTitle(CommonConfig.INSTANCE.getEmbedTitle());
@@ -310,10 +317,44 @@ public class FruitDataSender implements Runnable {
       return eb;
    }
 
+   private Optional<Guild> getGuild() {
+      Guild guild = this.jda.getGuildById(CommonConfig.INSTANCE.getGuildId());
+      if (guild == null) {
+         LOGGER.error("NO SERVER COULD BE FOUND WITH THE GIVEN ID! PLEASE FIX IN CONFIG!");
+         return Optional.empty();
+      }
+      return Optional.of(guild);
+   }
+
+   private Optional<TextChannel> getTextChannelFromGuild(Guild guild) {
+      TextChannel channel = guild.getTextChannelById(CommonConfig.INSTANCE.getChannelId());
+      if (channel == null) {
+         LOGGER.error("NO CHANNEL COULD BE FOUND WITH THE GIVEN ID! PLEASE FIX IN CONFIG!");
+         return Optional.empty();
+      }
+      return Optional.of(channel);
+   }
+
+   private void startEmbedBuilding(TextChannel channel, EmbedBuilder embedBuilder) {
+      Message message;
+      try {
+         if (CommonConfig.INSTANCE.getMessageId() == 0L) {
+            message = channel.sendMessageEmbeds(embedBuilder.build()).complete();
+            CommonConfig.INSTANCE.setMessageId(message.getIdLong());
+         } else {
+            channel.editMessageEmbedsById(CommonConfig.INSTANCE.getMessageId(), embedBuilder.build()).complete();
+         }
+      } catch (ErrorResponseException e) {
+         LOGGER.warn("Message ID cannot be associated with a Message anymore. Sending new one!");
+         message = channel.sendMessageEmbeds(embedBuilder.build()).complete();
+         CommonConfig.INSTANCE.setMessageId(message.getIdLong());
+      }
+   }
+
    @SuppressWarnings("null")
    public void run() {
       this.running.set(true);
-      HashMap<String, FruitData> oldFruitData = new HashMap<String, FruitData>();
+      Map<String, FruitData> oldFruitData = new HashMap<>();
 
       this.jda = JDABuilder
             .createDefault(CommonConfig.INSTANCE.getBotToken(), this.intents)
@@ -325,54 +366,35 @@ public class FruitDataSender implements Runnable {
          jda.awaitReady();
       } catch (InterruptedException e) {
          LOGGER.fatal(String.format("Something stopped JDA from starting: %s", e.getMessage()));
+         Thread.currentThread().interrupt();
       }
 
+      Map<String, FruitData> fruitData;
+      EmbedBuilder embed;
+
       while (this.running.get()) {
-         HashMap<String, FruitData> fruitData = this.getFruitData();
+         fruitData = this.getFruitData();
          if (!this.areFruitDataSame(oldFruitData, fruitData)) {
             try {
+               embed = this.buildEmbed(jda, CommonConfig.INSTANCE.getBotMode(), fruitData);
+               Guild guild = getGuild().orElseThrow(IllegalArgumentException::new);
+               TextChannel channel = getTextChannelFromGuild(guild).orElseThrow(IllegalArgumentException::new);
 
-               Guild guild = jda.getGuildById(CommonConfig.INSTANCE.getGuildId());
-               if (guild == null) {
-                  LOGGER.error("NO SERVER COULD BE FOUND WITH THE GIVEN ID! PLEASE FIX IN CONFIG!");
-                  break;
-               }
-
-               TextChannel channel = guild.getTextChannelById(CommonConfig.INSTANCE.getChannelId());
-               if (channel == null) {
-                  LOGGER.error("NO CHANNEL COULD BE FOUND WITH THE GIVEN ID! PLEASE FIX IN CONFIG!");
-                  break;
-               }
-
-               EmbedBuilder embed = this.buildEmbed(jda, CommonConfig.INSTANCE.getBotMode(), fruitData);
-
-               Message message;
-               try {
-                  if (CommonConfig.INSTANCE.getMessageId() == 0L) {
-                     message = channel.sendMessageEmbeds(embed.build(), new MessageEmbed[0]).complete();
-                     CommonConfig.INSTANCE.setMessageId(message.getIdLong());
-                  } else {
-                     message = channel.editMessageEmbedsById(CommonConfig.INSTANCE.getMessageId(),
-                           new MessageEmbed[] { embed.build() }).complete();
-                  }
-               } catch (ErrorResponseException e) {
-                  LOGGER.warn("Message ID cannot be associated with a Message anymore. Sending new one!");
-                  message = channel.sendMessageEmbeds(embed.build(), new MessageEmbed[0]).complete();
-                  CommonConfig.INSTANCE.setMessageId(message.getIdLong());
-               }
+               this.startEmbedBuilding(channel, embed);
 
                oldFruitData = fruitData;
 
             } catch (InvalidTokenException e) {
                LOGGER.error("INCORRECT BOT TOKEN SUPPLIED! PLEASE FIX IN CONFIG!");
-               break;
+               this.interrupt();
             } catch (InsufficientPermissionException e) {
-               LOGGER.error(String.format("THE BOT IS MISSING NECESSARY PERMISSIONS: %s", e.getMessage()));
-               break;
+               LOGGER.error(String.format("THE BOT IS MISSING NECESSARY PERMISSIONS: %s",
+                     e.getMessage()));
+               this.interrupt();
             } catch (IllegalArgumentException e) {
                LOGGER.error(String.format("Something happened while trying to access discord functionality: %s",
                      e.getMessage()));
-               break;
+               this.interrupt();
             }
          }
       }

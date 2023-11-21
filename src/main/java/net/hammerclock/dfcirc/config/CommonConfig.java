@@ -3,10 +3,14 @@ package net.hammerclock.dfcirc.config;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
+
 import net.hammerclock.dfcirc.types.BotMode;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 import net.minecraftforge.common.ForgeConfigSpec;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 public class CommonConfig {
@@ -53,11 +57,11 @@ public class CommonConfig {
       this.botToken = builder.comment("Your discord bot token here.").define("Discord Bot Token", "");
 
       this.serverId = builder.comment("Server ID in which the Devil Fruit Circulation Bot should work in")
-            .defineInRange("Server ID", 100000000000000000L, 0L, Long.MAX_VALUE);
+            .defineInRange("Server ID", 0L, 0L, Long.MAX_VALUE);
 
       this.channelId = builder.comment(
             "Channel ID to where the Circulation Messages will be send. Please make sure the bot has write access!")
-            .defineInRange("Channel ID", 1000000000000000000L, 0L, Long.MAX_VALUE);
+            .defineInRange("Channel ID", 0L, 0L, Long.MAX_VALUE);
 
       this.messageId = builder.comment("DO NOT TOUCH. WILL BE GENERATED").defineInRange("Message ID", 0L, 0L,
             Long.MAX_VALUE);
@@ -70,13 +74,13 @@ public class CommonConfig {
       this.useEmojis = builder.comment("Use emojis to show the rarity of a fruit").define("Use Emojis", false);
 
       this.goldBoxEmojiId = builder.comment("Discord Emoji ID to represent a Gold Box.")
-            .defineInRange("Gold Box Emoji ID", 1000000000000000000L, 0L, Long.MAX_VALUE);
+            .defineInRange("Gold Box Emoji ID", 0L, 0L, Long.MAX_VALUE);
 
       this.ironBoxEmojiId = builder.comment("Discord Emoji ID to represent an Iron Box.")
-            .defineInRange("Iron Box Emoji ID", 1000000000000000000L, 0L, Long.MAX_VALUE);
+            .defineInRange("Iron Box Emoji ID", 0L, 0L, Long.MAX_VALUE);
 
       this.woodenBoxEmojiId = builder.comment("Discord Emoji ID to represent a Wooden Box.")
-            .defineInRange("Wooden Box Emoji ID", 1000000000000000000L, 0L, Long.MAX_VALUE);
+            .defineInRange("Wooden Box Emoji ID", 0L, 0L, Long.MAX_VALUE);
       builder.pop();
 
       builder.push("EmbedDesign");
@@ -108,23 +112,23 @@ public class CommonConfig {
       return this.botToken.get();
    }
 
-   public Long getChannelId() {
+   public long getChannelId() {
       return this.channelId.get();
    }
 
-   public Boolean getUseEmojis() {
+   public boolean getUseEmojis() {
       return this.useEmojis.get();
    }
 
-   public Long getGoldBoxEmojiId() {
+   public long getGoldBoxEmojiId() {
       return this.goldBoxEmojiId.get();
    }
 
-   public Long getIronBoxEmojiId() {
+   public long getIronBoxEmojiId() {
       return this.ironBoxEmojiId.get();
    }
 
-   public Long getWoodenBoxEmojiId() {
+   public long getWoodenBoxEmojiId() {
       return this.woodenBoxEmojiId.get();
    }
 
@@ -140,31 +144,31 @@ public class CommonConfig {
       return this.embedFooter.get();
    }
 
-   public Boolean getEmbedShowLastUpdated() {
+   public boolean getEmbedShowLastUpdated() {
       return this.embedShowLastUpdated.get();
    }
 
-   public Boolean getShowStatus() {
+   public boolean getShowStatus() {
       return this.showStatus.get();
    }
 
-   public Long getGuildId() {
+   public long getGuildId() {
       return this.serverId.get();
    }
 
-   public Boolean getEmbedSortByTier() {
+   public boolean getEmbedSortByTier() {
       return this.embedSortByTier.get();
    }
 
-   public Boolean getEmbedSortByAlphabet() {
+   public boolean getEmbedSortByAlphabet() {
       return this.embedSortByAlphabet.get();
    }
 
-   public Long getMessageId() {
+   public long getMessageId() {
       return this.messageId.get();
    }
 
-   public void setMessageId(Long messageId) {
+   public void setMessageId(long messageId) {
       this.messageId.set(messageId);
       this.messageId.save();
    }
