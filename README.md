@@ -34,7 +34,11 @@ cd ..
 ./gradlew build
 ```
 
-From there you can take the jar out of the `build/libs` folder
+From there you can take the jar out of the `build/libs` folder  
+
+## Dependencies
+
+This mod depends on the latest 1.16.5 version of [Discord Integration](https://modrinth.com/plugin/dcintegration) therefore you must get and configure this addon as well!
 
 ## Configuration Options
 
