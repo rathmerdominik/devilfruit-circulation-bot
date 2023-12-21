@@ -276,7 +276,7 @@ public final class FruitEvents {
 						Message message = channel.sendMessageEmbeds(embedBuilder.build()).complete();
 						CommonConfig.INSTANCE.setMessageId(message.getIdLong());
 					} else {
-						channel.editMessageEmbedsById(CommonConfig.INSTANCE.getMessageId(), embedBuilder.build()).complete();
+						channel.editMessageEmbedsById(CommonConfig.INSTANCE.getMessageId(), embedBuilder.build()).queue();
 					}
 				} catch (ErrorResponseException e) {
 					LOGGER.debug(e);
