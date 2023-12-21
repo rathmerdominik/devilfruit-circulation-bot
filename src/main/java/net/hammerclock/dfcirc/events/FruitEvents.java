@@ -173,18 +173,13 @@ public final class FruitEvents {
 			}
 
 			OneFruitEntry entry = worldData.getOneFruitEntry(fruitEmbedEntry.devilFruitKey);
-			if(entry == null) {
-				throw new IllegalStateException(REPORT_ERROR_HERE);
-			}
 
-			String fruitStatus = fruitEmbedEntry.getDevilFruitStatus().orElseThrow(IllegalArgumentException::new).name();
-
-			if(!getOwnerName(entry, world).isEmpty() && CommonConfig.INSTANCE.showPlayerNameAsStatus() && fruitEmbedEntry.getDevilFruitStatus().isPresent()) {
-				formattedString = String.format("%s%n__%s__ by%n%s", formattedString, fruitStatus, getOwnerName(entry, world));
+			if(entry != null && !getOwnerName(entry, world).isEmpty() && CommonConfig.INSTANCE.showPlayerNameAsStatus() && fruitEmbedEntry.getDevilFruitStatus().isPresent()) {
+				formattedString = String.format("%s%n```%s``` by%n||%s||", formattedString, fruitEmbedEntry.getDevilFruitStatus().get().name(), getOwnerName(entry, world));
 			} else {
-				formattedString = String.format("%s%n__%s__", formattedString,
+				formattedString = String.format("%s%n```%s```", formattedString,
 					fruitEmbedEntry.getDevilFruitStatus().isPresent()
-							? fruitStatus
+							? fruitEmbedEntry.getDevilFruitStatus().get().name()
 							: "FREE");
 			}
 		}
@@ -344,7 +339,7 @@ public final class FruitEvents {
 	 * @return An EmbedBuilder that has formatted sorted fruits based on available fruits 
 	 */
 	private EmbedBuilder buildEmbedShowAvailable(EmbedBuilder eb, Map<String, FruitData> fruitData) {
-		eb.addField("Available Devil Fruits", "", false);
+		eb.addField("", "════════════════════╣  **Available**  ╠════════════════════", false);
 
 		List<FruitData> sortedFruitData = sortFruits(fruitData);
 
@@ -379,7 +374,7 @@ public final class FruitEvents {
 	 * @return An EmbedBuilder that has formatted sorted fruits based on unavailable fruits 
 	 */
 	private EmbedBuilder buildEmbedShowUnavailable(EmbedBuilder eb, Map<String, FruitData> fruitData) {
-		eb.addField("Unavailable Devil Fruits", "", false);
+		eb.addField("", "═══════════════════╣  **Unavailable**  ╠═══════════════════", false);
 
 		List<FruitData> sortedFruitData = sortFruits(fruitData);
 
