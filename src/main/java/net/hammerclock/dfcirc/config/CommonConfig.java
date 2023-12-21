@@ -1,9 +1,9 @@
 // Source code is decompiled from a .class file using FernFlower decompiler.
-package com.hammerclock.dfcirc.config;
+package net.hammerclock.dfcirc.config;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
-import com.hammerclock.dfcirc.types.BotMode;
+import net.hammerclock.dfcirc.types.BotMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import net.minecraftforge.common.ForgeConfigSpec;

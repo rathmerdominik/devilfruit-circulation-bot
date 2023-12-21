@@ -1,4 +1,4 @@
-package com.hammerclock.dfcirc.types;
+package net.hammerclock.dfcirc.types;
 
 import java.util.Optional;
 import xyz.pixelatedw.mineminenomi.api.OneFruitEntry;
