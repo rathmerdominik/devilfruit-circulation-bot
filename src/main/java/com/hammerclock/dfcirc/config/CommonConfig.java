@@ -48,32 +48,32 @@ public class CommonConfig {
       builder.push("General");
       this.botMode = builder.comment("In which mode the Bot is supposed to work.").defineEnum("Circulation Bot Mode",
             BotMode.ONLY_SHOW_AVAILABLE);
-      
+
       this.botToken = builder.comment("Your discord bot token here.").define("Discord Bot Token", "");
 
       this.serverId = builder.comment("Server ID in which the Devil Fruit Circulation Bot should work in")
             .defineInRange("Server ID", 100000000000000000L, 0L, Long.MAX_VALUE);
-      
+
       this.channelId = builder.comment(
             "Channel ID to where the Circulation Messages will be send. Please make sure the bot has write access!")
             .defineInRange("Channel ID", 1000000000000000000L, 0L, Long.MAX_VALUE);
-      
+
       this.messageId = builder.comment("DO NOT TOUCH. WILL BE GENERATED").defineInRange("Message ID", 0L, 0L,
             Long.MAX_VALUE);
-      
+
       this.showStatus = builder.comment(
             "Show the current Status of the Fruit as well if it has one\nAvailable Status: LOST, IN_USE, INVENTORY, DROPPED\nDefault: False")
             .define("Show Fruit Status", false);
-      
+
       builder.push("Emojis");
       this.useEmojis = builder.comment("Use emojis to show the rarity of a fruit").define("Use Emojis", false);
 
       this.goldBoxEmojiId = builder.comment("Discord Emoji ID to represent a Gold Box.")
             .defineInRange("Gold Box Emoji ID", 1000000000000000000L, 0L, Long.MAX_VALUE);
-      
+
       this.ironBoxEmojiId = builder.comment("Discord Emoji ID to represent an Iron Box.")
             .defineInRange("Iron Box Emoji ID", 1000000000000000000L, 0L, Long.MAX_VALUE);
-      
+
       this.woodenBoxEmojiId = builder.comment("Discord Emoji ID to represent a Wooden Box.")
             .defineInRange("Wooden Box Emoji ID", 1000000000000000000L, 0L, Long.MAX_VALUE);
       builder.pop();
@@ -83,13 +83,13 @@ public class CommonConfig {
 
       this.embedTitle = builder.comment("The title of the Embed").define("Embed Title",
             "Current Devilfruit Circulation");
-      
+
       this.embedFooter = builder.comment("The footer of the Embed").define("Embed Footer",
             "Made by DerHammerclock | Last updated");
-      
+
       this.embedShowLastUpdated = builder.comment("Show a date next to the footer when the embed has been updated")
             .define("Show Last Updated", true);
-      
+
       this.embedSortByTier = builder.comment("Sort Devil Fruits by their Tier.").define("Sort By Tier", true);
 
       builder.pop();

@@ -43,7 +43,8 @@ public class FruitDataSender implements Runnable {
    EnumSet<GatewayIntent> intents;
 
    public FruitDataSender() {
-      this.intents = EnumSet.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_EMOJIS_AND_STICKERS, GatewayIntent.MESSAGE_CONTENT);
+      this.intents = EnumSet.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
+            GatewayIntent.MESSAGE_CONTENT);
    }
 
    public void start() {
@@ -71,7 +72,7 @@ public class FruitDataSender implements Runnable {
    public boolean areFruitDataSame(HashMap<String, FruitData> oldFruitData, HashMap<String, FruitData> newFruitData) {
       if (!oldFruitData.isEmpty() && !newFruitData.isEmpty()) {
 
-         for(Map.Entry<String, FruitData> newFruit : newFruitData.entrySet()) {
+         for (Map.Entry<String, FruitData> newFruit : newFruitData.entrySet()) {
             String newFruitKey = (String) newFruit.getKey();
 
             String oldFruitStatus;
@@ -103,17 +104,18 @@ public class FruitDataSender implements Runnable {
       ExtendedWorldData extendedWorldData = ExtendedWorldData.get();
 
       if (extendedWorldData != null) {
-         for(AkumaNoMiItem fruit : ModValues.devilfruits) {
+         for (AkumaNoMiItem fruit : ModValues.devilfruits) {
             OneFruitEntry entry = extendedWorldData.getOneFruitEntry(fruit.getFruitKey());
             OneFruitEntry.Status status;
 
             if (entry == null) {
                status = null;
-            } else { 
+            } else {
                status = entry.getStatus();
             }
 
-            FruitData fruitData = new FruitData(fruit.getDevilFruitName(), fruit.getFruitKey(), status, TierBox.values()[fruit.getTier() - 1]);
+            FruitData fruitData = new FruitData(fruit.getDevilFruitName(), fruit.getFruitKey(), status,
+                  TierBox.values()[fruit.getTier() - 1]);
             fruitDataMap.put(fruit.getFruitKey(), fruitData);
          }
       }
@@ -141,7 +143,8 @@ public class FruitDataSender implements Runnable {
                   formattedString = String.format("%s%s", woodenBoxEmoji, fruitEntry.devilFruitName);
                   break;
                default:
-                  LOGGER.error("THIS SHOULD NOT HAVE HAPPENED. Something is wrong with the Emoji function. Please report to DerHammerclock!");
+                  LOGGER.error(
+                        "THIS SHOULD NOT HAVE HAPPENED. Something is wrong with the Emoji function. Please report to DerHammerclock!");
             }
          } catch (NullPointerException e) {
             LOGGER.error("One of the Emojis has an invalid ID! " + e.getMessage());
@@ -149,7 +152,8 @@ public class FruitDataSender implements Runnable {
       }
 
       if (CommonConfig.INSTANCE.getShowStatus()) {
-         formattedString = String.format("%s\n__Status:__ %s", formattedString, fruitEntry.devilFruitStatus.isPresent() ? fruitEntry.devilFruitStatus.get().name() : "Free");
+         formattedString = String.format("%s\n__Status:__ %s", formattedString,
+               fruitEntry.devilFruitStatus.isPresent() ? fruitEntry.devilFruitStatus.get().name() : "Free");
       }
 
       return formattedString;
@@ -178,9 +182,8 @@ public class FruitDataSender implements Runnable {
       goldBoxFruitData.addAll(woodenBoxFruitData);
 
       return goldBoxFruitData;
-      
+
    }
-   
 
    public EmbedBuilder buildEmbedShowAvailable(JDA jda, EmbedBuilder eb, HashMap<String, FruitData> fruitData) {
       eb.addField("Available Devil Fruits", "", false);
@@ -189,9 +192,9 @@ public class FruitDataSender implements Runnable {
 
       List<String> batchFruit = new ArrayList<String>();
 
-      for(int i = 0; i < sortedFruitData.size(); i++) {
+      for (int i = 0; i < sortedFruitData.size(); i++) {
          FruitData fruitEntry = sortedFruitData.get(i);
-         
+
          if (!fruitEntry.devilFruitStatus.isPresent() || fruitEntry.devilFruitStatus.get() == Status.LOST) {
             if (batchFruit.size() == 5 || i == sortedFruitData.size() - 1) {
                eb.addField("", String.join("\n", batchFruit), true);
@@ -209,10 +212,10 @@ public class FruitDataSender implements Runnable {
       eb.addField("Unavailable Devil Fruits", "", false);
 
       ArrayList<FruitData> sortedFruitData = this.sortFruits(fruitData);
-      
+
       List<String> batchFruit = new ArrayList<String>();
 
-      for(int i = 0; i < sortedFruitData.size(); i++) {
+      for (int i = 0; i < sortedFruitData.size(); i++) {
          FruitData fruitEntry = sortedFruitData.get(i);
          if (fruitEntry.devilFruitStatus.isPresent() && fruitEntry.devilFruitStatus.get() != Status.LOST) {
             if (batchFruit.size() == 5 || i == sortedFruitData.size() - 1) {
@@ -264,15 +267,15 @@ public class FruitDataSender implements Runnable {
       this.stopped.set(false);
       HashMap<String, FruitData> oldFruitData = new HashMap<String, FruitData>();
 
-      while(this.running.get()) {
+      while (this.running.get()) {
          HashMap<String, FruitData> fruitData = this.getFruitData();
          if (!this.areFruitDataSame(oldFruitData, fruitData)) {
             try {
                JDA jda = JDABuilder
-                        .createDefault(CommonConfig.INSTANCE.getBotToken(), this.intents)
-                        .setActivity(Activity.watching("Devil Fruit Circulation"))
-                        .setStatus(OnlineStatus.ONLINE)
-                        .build();
+                     .createDefault(CommonConfig.INSTANCE.getBotToken(), this.intents)
+                     .setActivity(Activity.watching("Devil Fruit Circulation"))
+                     .setStatus(OnlineStatus.ONLINE)
+                     .build();
                jda.awaitReady();
 
                Guild guild = jda.getGuildById(CommonConfig.INSTANCE.getGuildId());
@@ -295,7 +298,8 @@ public class FruitDataSender implements Runnable {
                      message = channel.sendMessageEmbeds(embed.build(), new MessageEmbed[0]).complete();
                      CommonConfig.INSTANCE.setMessageId(message.getIdLong());
                   } else {
-                     message = channel.editMessageEmbedsById(CommonConfig.INSTANCE.getMessageId(), new MessageEmbed[]{embed.build()}).complete();
+                     message = channel.editMessageEmbedsById(CommonConfig.INSTANCE.getMessageId(),
+                           new MessageEmbed[] { embed.build() }).complete();
                   }
                } catch (ErrorResponseException e) {
                   LOGGER.warn("Message ID cannot be associated with a Message anymore. Sending new one!");
@@ -315,7 +319,8 @@ public class FruitDataSender implements Runnable {
                LOGGER.error(String.format("THE BOT IS MISSING NECESSARY PERMISSIONS: %s", e.getMessage()));
                break;
             } catch (IllegalArgumentException e) {
-               LOGGER.error(String.format("Something happened while trying to access discord functionality: %s", e.getMessage()));
+               LOGGER.error(String.format("Something happened while trying to access discord functionality: %s",
+                     e.getMessage()));
                break;
             }
          }
