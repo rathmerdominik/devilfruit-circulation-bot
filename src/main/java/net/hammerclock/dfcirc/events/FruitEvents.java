@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.apache.logging.log4j.Logger;
 
@@ -27,7 +26,6 @@ import net.hammerclock.dfcirc.config.CommonConfig;
 import net.hammerclock.dfcirc.types.FruitData;
 import net.hammerclock.dfcirc.types.TierBox;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.common.UsernameCache;
