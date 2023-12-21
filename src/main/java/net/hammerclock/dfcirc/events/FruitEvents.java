@@ -186,12 +186,12 @@ public final class FruitEvents {
 				if("IN_USE".equals(fruitStatus.name()) || "INVENTORY".equals(fruitStatus.name())) {
 					formattedString = String.format("%s%n__Player:__ %s", formattedString, getOwnerName(entry, world));
 				}
+			} else {
+				formattedString = String.format("%s%n__Status:__ %s", formattedString,
+					fruitEmbedEntry.getDevilFruitStatus().isPresent()
+							? fruitEmbedEntry.getDevilFruitStatus().orElseThrow(IllegalArgumentException::new).name()
+							: "Free");
 			}
-
-			formattedString = String.format("%s%n__Status:__ %s", formattedString,
-				fruitEmbedEntry.getDevilFruitStatus().isPresent()
-						? fruitEmbedEntry.getDevilFruitStatus().orElseThrow(IllegalArgumentException::new).name()
-						: "Free");
 		}
 
 		return formattedString;
