@@ -8,6 +8,8 @@ import com.hammerclock.dfcirc.types.TierBox;
 import java.awt.Color;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +29,7 @@ import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import xyz.pixelatedw.mineminenomi.api.OneFruitEntry;
@@ -77,14 +80,14 @@ public class FruitDataSender implements Runnable {
 
             String oldFruitStatus;
             try {
-               oldFruitStatus = oldFruitData.get(newFruitKey).devilFruitStatus.get().name().toString();
+               oldFruitStatus = oldFruitData.get(newFruitKey).getDevilFruitStatus().get().name().toString();
             } catch (NoSuchElementException e) {
                oldFruitStatus = "";
             }
 
             String newFruitStatus;
             try {
-               newFruitStatus = newFruit.getValue().devilFruitStatus.get().name().toString();
+               newFruitStatus = newFruit.getValue().getDevilFruitStatus().get().name().toString();
             } catch (NoSuchElementException e) {
                newFruitStatus = "";
             }
@@ -132,15 +135,15 @@ public class FruitDataSender implements Runnable {
             String ironBoxEmoji = jda.getEmojiById(CommonConfig.INSTANCE.getIronBoxEmojiId()).getAsMention();
             String woodenBoxEmoji = jda.getEmojiById(CommonConfig.INSTANCE.getWoodenBoxEmojiId()).getAsMention();
 
-            switch (fruitEntry.devilFruitTier) {
+            switch (fruitEntry.getDevilFruitTier()) {
                case GOLD:
-                  formattedString = String.format("%s%s", goldBoxEmoji, fruitEntry.devilFruitName);
+                  formattedString = String.format("%s%s", goldBoxEmoji, fruitEntry.getDevilFruitName());
                   break;
                case IRON:
-                  formattedString = String.format("%s%s", ironBoxEmoji, fruitEntry.devilFruitName);
+                  formattedString = String.format("%s%s", ironBoxEmoji, fruitEntry.getDevilFruitName());
                   break;
                case WOODEN:
-                  formattedString = String.format("%s%s", woodenBoxEmoji, fruitEntry.devilFruitName);
+                  formattedString = String.format("%s%s", woodenBoxEmoji, fruitEntry.getDevilFruitName());
                   break;
                default:
                   LOGGER.error(
@@ -153,36 +156,61 @@ public class FruitDataSender implements Runnable {
 
       if (CommonConfig.INSTANCE.getShowStatus()) {
          formattedString = String.format("%s\n__Status:__ %s", formattedString,
-               fruitEntry.devilFruitStatus.isPresent() ? fruitEntry.devilFruitStatus.get().name() : "Free");
+               fruitEntry.getDevilFruitStatus().isPresent() ? fruitEntry.getDevilFruitStatus().get().name() : "Free");
       }
 
       return formattedString;
    }
 
    public ArrayList<FruitData> sortFruits(HashMap<String, FruitData> fruitData) {
-      ArrayList<FruitData> goldBoxFruitData = new ArrayList<FruitData>();
-      ArrayList<FruitData> ironBoxFruitData = new ArrayList<FruitData>();
-      ArrayList<FruitData> woodenBoxFruitData = new ArrayList<FruitData>();
+      if (CommonConfig.INSTANCE.getEmbedSortByTier() || CommonConfig.INSTANCE.getEmbedSortByAlphabet()) {
+         ArrayList<FruitData> goldBoxFruitData = new ArrayList<FruitData>();
+         ArrayList<FruitData> ironBoxFruitData = new ArrayList<FruitData>();
+         ArrayList<FruitData> woodenBoxFruitData = new ArrayList<FruitData>();
 
-      for (FruitData tierFruitData : fruitData.values()) {
-         switch (tierFruitData.devilFruitTier) {
-            case GOLD:
-               goldBoxFruitData.add(tierFruitData);
-               break;
-            case IRON:
-               ironBoxFruitData.add(tierFruitData);
-               break;
-            case WOODEN:
-               woodenBoxFruitData.add(tierFruitData);
+         Comparator<FruitData> nameComparator = Comparator.comparing(FruitData::getDevilFruitName,
+               String.CASE_INSENSITIVE_ORDER);
+
+         for (FruitData tierFruitData : fruitData.values()) {
+            switch (tierFruitData.getDevilFruitTier()) {
+               case GOLD:
+                  goldBoxFruitData.add(tierFruitData);
+                  break;
+               case IRON:
+                  ironBoxFruitData.add(tierFruitData);
+                  break;
+               case WOODEN:
+                  woodenBoxFruitData.add(tierFruitData);
+                  break;
+               default:
+                  LOGGER.fatal("This should not have happened! Please message DerHammerclock about this!");
+            }
          }
+
+         Collections.sort(goldBoxFruitData, nameComparator);
+         Collections.sort(ironBoxFruitData, nameComparator);
+         Collections.sort(woodenBoxFruitData, nameComparator);
+
+         // yeah yeah. Semantics...
+         goldBoxFruitData.addAll(ironBoxFruitData);
+         goldBoxFruitData.addAll(woodenBoxFruitData);
+
+         if (CommonConfig.INSTANCE.getEmbedSortByAlphabet()) {
+            if (CommonConfig.INSTANCE.getEmbedSortByTier())
+               LOGGER.warn("You enabled Sort By Tier alongside Sort By Alphabet. Using Sort By Alphabet!");
+            Collections.sort(goldBoxFruitData, nameComparator);
+         }
+
+         return goldBoxFruitData;
+      } else {
+         ArrayList<FruitData> listFruitData = new ArrayList<FruitData>();
+
+         for (FruitData fruitDataEntry : fruitData.values()) {
+            listFruitData.add(fruitDataEntry);
+         }
+
+         return listFruitData;
       }
-
-      // yeah yeah. Semantics...
-      goldBoxFruitData.addAll(ironBoxFruitData);
-      goldBoxFruitData.addAll(woodenBoxFruitData);
-
-      return goldBoxFruitData;
-
    }
 
    public EmbedBuilder buildEmbedShowAvailable(JDA jda, EmbedBuilder eb, HashMap<String, FruitData> fruitData) {
@@ -195,7 +223,7 @@ public class FruitDataSender implements Runnable {
       for (int i = 0; i < sortedFruitData.size(); i++) {
          FruitData fruitEntry = sortedFruitData.get(i);
 
-         if (!fruitEntry.devilFruitStatus.isPresent() || fruitEntry.devilFruitStatus.get() == Status.LOST) {
+         if (!fruitEntry.getDevilFruitStatus().isPresent() || fruitEntry.getDevilFruitStatus().get() == Status.LOST) {
             if (batchFruit.size() == 5) {
                eb.addField("", String.join("\n", batchFruit), true);
                batchFruit.clear();
@@ -220,7 +248,7 @@ public class FruitDataSender implements Runnable {
       for (int i = 0; i < sortedFruitData.size(); i++) {
          FruitData fruitEntry = sortedFruitData.get(i);
 
-         if (fruitEntry.devilFruitStatus.isPresent() && fruitEntry.devilFruitStatus.get() != Status.LOST) {
+         if (fruitEntry.getDevilFruitStatus().isPresent() && fruitEntry.getDevilFruitStatus().get() != Status.LOST) {
             if (batchFruit.size() == 5) {
                eb.addField("", String.join("\n", batchFruit), true);
                batchFruit.clear();
