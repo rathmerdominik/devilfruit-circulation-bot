@@ -317,7 +317,6 @@ public class FruitDataSender implements Runnable {
       HashMap<String, FruitData> oldFruitData = new HashMap<String, FruitData>();
 
       while (this.running.get()) {
-         LOGGER.info("STILL RUNNING");
          HashMap<String, FruitData> fruitData = this.getFruitData();
          if (!this.areFruitDataSame(oldFruitData, fruitData)) {
             try {
