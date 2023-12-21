@@ -60,6 +60,7 @@ public class FruitDataSender implements Runnable {
       this.worker.start();
    }
 
+   @SuppressWarnings("null")
    public void stop() {
       LOGGER.info("Shutting down Devil Fruit Circulation bot");
       this.running.set(false);
@@ -141,6 +142,7 @@ public class FruitDataSender implements Runnable {
       return fruitDataMap;
    }
 
+   @SuppressWarnings("null")
    public String formatWithDecoration(JDA jda, FruitData fruitEntry) {
       String formattedString = "";
 
@@ -231,6 +233,7 @@ public class FruitDataSender implements Runnable {
       }
    }
 
+   @SuppressWarnings("null")
    public EmbedBuilder buildEmbedShowAvailable(JDA jda, EmbedBuilder eb, HashMap<String, FruitData> fruitData) {
       eb.addField("Available Devil Fruits", "", false);
 
@@ -256,12 +259,13 @@ public class FruitDataSender implements Runnable {
       return eb;
    }
 
+   @SuppressWarnings("null")
    public EmbedBuilder buildEmbedShowUnavailable(JDA jda, EmbedBuilder eb, HashMap<String, FruitData> fruitData) {
       eb.addField("Unavailable Devil Fruits", "", false);
 
       ArrayList<FruitData> sortedFruitData = this.sortFruits(fruitData);
 
-      List<String> batchFruit = new ArrayList<String>();
+      List<String> batchFruit = new ArrayList< String>();
 
       for (int i = 0; i < sortedFruitData.size(); i++) {
          FruitData fruitEntry = sortedFruitData.get(i);
@@ -313,6 +317,7 @@ public class FruitDataSender implements Runnable {
       return eb;
    }
 
+   @SuppressWarnings("null")
    public void run() {
       this.running.set(true);
       this.stopped.set(false);
