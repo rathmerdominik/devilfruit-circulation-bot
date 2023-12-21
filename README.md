@@ -69,6 +69,8 @@ This mod depends on the latest 1.16.5 version of [Discord Integration](https://m
 	#DO NOT TOUCH. WILL BE GENERATED
 	#Range: 0 ~ 9223372036854775807
 	"Message ID" = 0
+	#Show the player name if the fruit status is INVENTORY or IN_USE. Requires Show Fruit Status to be true
+	"Show Player Name as Status" = false
 
 [Emojis]
 	#Discord Emoji ID to represent a Gold Box.

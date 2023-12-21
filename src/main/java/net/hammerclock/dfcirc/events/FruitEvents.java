@@ -169,28 +169,25 @@ public final class FruitEvents {
 		}
 
 		if (CommonConfig.INSTANCE.showStatus()) {
-			if(CommonConfig.INSTANCE.showPlayerNameAsStatus() && fruitEmbedEntry.getDevilFruitStatus().isPresent()) {
+			ExtendedWorldData worldData = ExtendedWorldData.get();
+			if(worldData == null) {
+				throw new IllegalStateException(REPORT_ERROR_HERE);
+			}
 
-				ExtendedWorldData worldData = ExtendedWorldData.get();
-				if(worldData == null) {
-					throw new IllegalStateException(REPORT_ERROR_HERE);
-				}
+			OneFruitEntry entry = worldData.getOneFruitEntry(fruitEmbedEntry.devilFruitKey);
+			if(entry == null) {
+				throw new IllegalStateException(REPORT_ERROR_HERE);
+			}
 
-				OneFruitEntry entry = worldData.getOneFruitEntry(fruitEmbedEntry.devilFruitKey);
-				if(entry == null) {
-					throw new IllegalStateException(REPORT_ERROR_HERE);
-				}
+			String fruitStatus = fruitEmbedEntry.getDevilFruitStatus().orElseThrow(IllegalArgumentException::new).name();
 
-				Status fruitStatus = fruitEmbedEntry.getDevilFruitStatus().get();
-
-				if("IN_USE".equals(fruitStatus.name()) || "INVENTORY".equals(fruitStatus.name())) {
-					formattedString = String.format("%s%n__Player:__ %s", formattedString, getOwnerName(entry, world));
-				}
+			if(!getOwnerName(entry, world).isEmpty() && CommonConfig.INSTANCE.showPlayerNameAsStatus() && fruitEmbedEntry.getDevilFruitStatus().isPresent()) {
+				formattedString = String.format("%s%n__%s__ by%n%s", formattedString, fruitStatus, getOwnerName(entry, world));
 			} else {
-				formattedString = String.format("%s%n__Status:__ %s", formattedString,
+				formattedString = String.format("%s%n__%s__", formattedString,
 					fruitEmbedEntry.getDevilFruitStatus().isPresent()
-							? fruitEmbedEntry.getDevilFruitStatus().orElseThrow(IllegalArgumentException::new).name()
-							: "Free");
+							? fruitStatus
+							: "FREE");
 			}
 		}
 
@@ -205,8 +202,6 @@ public final class FruitEvents {
 				playerName = world.getPlayerByUUID(entry.getOwner().get()).getDisplayName().getString();
 			else if(UsernameCache.getLastKnownUsername(entry.getOwner().get()) != null)
 				playerName = UsernameCache.getLastKnownUsername(entry.getOwner().get());
-			else
-				throw new IllegalArgumentException("No Player name found for fruit!");
 		}
 		return playerName;
 	}
