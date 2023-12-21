@@ -6,6 +6,7 @@ import com.hammerclock.dfcirc.types.FruitData;
 import com.hammerclock.dfcirc.types.TierBox;
 
 import java.awt.Color;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,8 +60,16 @@ public class FruitDataSender implements Runnable {
 
    public void stop() {
       LOGGER.info("Shutting down Devil Fruit Circulation bot");
-      this.jda.shutdownNow();
       this.running.set(false);
+      this.jda.shutdown();
+      try{
+         if (!jda.awaitShutdown(Duration.ofSeconds(10))) {
+            jda.shutdownNow(); // Cancel all remaining requests
+            jda.awaitShutdown(); // Wait until shutdown is complete (indefinitely)
+         }
+      } catch (InterruptedException e) {
+         LOGGER.warn(e.getMessage());
+      }
    }
 
    public void interrupt() {
@@ -308,6 +317,7 @@ public class FruitDataSender implements Runnable {
       HashMap<String, FruitData> oldFruitData = new HashMap<String, FruitData>();
 
       while (this.running.get()) {
+         LOGGER.info("STILL RUNNING");
          HashMap<String, FruitData> fruitData = this.getFruitData();
          if (!this.areFruitDataSame(oldFruitData, fruitData)) {
             try {
