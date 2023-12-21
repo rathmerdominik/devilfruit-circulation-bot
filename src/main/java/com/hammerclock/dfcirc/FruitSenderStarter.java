@@ -10,7 +10,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig.Type;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
+import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.FMLNetworkConstants;
 
@@ -52,9 +54,11 @@ public class FruitSenderStarter {
    }
 
    @SubscribeEvent
-   public void onServerStoppedEvent(FMLServerStoppedEvent event) {
+   public void onServerStoppedEvent(FMLServerStoppingEvent event) {
       if (this.sender != null) {
-         this.sender.stop();
+         LOGGER.info("Shutting down Devil Fruit Circulation bot");
+         this.sender.interrupt();
+
       }
    }
 
