@@ -14,162 +14,160 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class CommonConfig {
-   public static final Path CONFIG_PATH = Paths.get("config", "dfcirc-common.toml");
-   public static final CommonConfig INSTANCE;
-   public static final ForgeConfigSpec CONFIG;
-   private ForgeConfigSpec.EnumValue<BotMode> botMode;
-   private ForgeConfigSpec.ConfigValue<String> botToken;
-   private ForgeConfigSpec.LongValue serverId;
-   private ForgeConfigSpec.LongValue channelId;
-   private ForgeConfigSpec.LongValue messageId;
-   private ForgeConfigSpec.BooleanValue showStatus;
-   private ForgeConfigSpec.BooleanValue useEmojis;
-   private ForgeConfigSpec.LongValue goldBoxEmojiId;
-   private ForgeConfigSpec.LongValue ironBoxEmojiId;
-   private ForgeConfigSpec.LongValue woodenBoxEmojiId;
-   private ForgeConfigSpec.ConfigValue<String> embedColor;
-   private ForgeConfigSpec.ConfigValue<String> embedTitle;
-   private ForgeConfigSpec.ConfigValue<String> embedFooter;
-   private ForgeConfigSpec.BooleanValue embedShowLastUpdated;
-   private ForgeConfigSpec.BooleanValue embedSortByTier;
-   private ForgeConfigSpec.BooleanValue embedSortByAlphabet;
+	public static final Path CONFIG_PATH = Paths.get("config", "dfcirc-common.toml");
+	public static final CommonConfig INSTANCE;
+	public static final ForgeConfigSpec CONFIG;
 
-   static {
-      Pair<CommonConfig, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder().configure(CommonConfig::new);
+	// General config values
+	private ForgeConfigSpec.EnumValue<BotMode> botMode;
+	private ForgeConfigSpec.LongValue channelId;
+	private ForgeConfigSpec.LongValue messageId;
+	private ForgeConfigSpec.BooleanValue showStatus;
 
-      CONFIG = pair.getRight();
-      INSTANCE = pair.getLeft();
+	// Emoji config values
+	private ForgeConfigSpec.BooleanValue useEmojis;
+	private ForgeConfigSpec.LongValue goldBoxEmojiId;
+	private ForgeConfigSpec.LongValue ironBoxEmojiId;
+	private ForgeConfigSpec.LongValue woodenBoxEmojiId;
+	
+	// Embed config values
+	private ForgeConfigSpec.ConfigValue<String> embedColor;
+	private ForgeConfigSpec.ConfigValue<String> embedTitle;
+	private ForgeConfigSpec.ConfigValue<String> embedFooter;
+	private ForgeConfigSpec.BooleanValue embedShowLastUpdated;
+	private ForgeConfigSpec.BooleanValue embedSortByTier;
+	private ForgeConfigSpec.BooleanValue embedSortByAlphabet;
 
-      CommentedFileConfig file = CommentedFileConfig.builder(CONFIG_PATH).sync().autoreload()
-            .writingMode(WritingMode.REPLACE).build();
+	static {
+		Pair<CommonConfig, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder().configure(CommonConfig::new);
 
-      file.load();
-      file.save();
+		CONFIG = pair.getRight();
+		INSTANCE = pair.getLeft();
 
-      CONFIG.setConfig(file);
-   }
+		CommentedFileConfig file = CommentedFileConfig.builder(CONFIG_PATH).sync().autoreload()
+			.writingMode(WritingMode.REPLACE).build();
 
-   public CommonConfig(ForgeConfigSpec.Builder builder) {
-      builder.push("General");
-      this.botMode = builder.comment("In which mode the Bot is supposed to work.").defineEnum("Circulation Bot Mode",
-            BotMode.ONLY_SHOW_AVAILABLE);
+		file.load();
+		file.save();
 
-      this.botToken = builder.comment("Your discord bot token here.").define("Discord Bot Token", "");
+		CONFIG.setConfig(file);
+	}
 
-      this.serverId = builder.comment("Server ID in which the Devil Fruit Circulation Bot should work in")
-            .defineInRange("Server ID", 0L, 0L, Long.MAX_VALUE);
+	public CommonConfig(ForgeConfigSpec.Builder builder) {
+		
+		// General config
 
-      this.channelId = builder.comment(
-            "Channel ID to where the Circulation Messages will be send. Please make sure the bot has write access!")
-            .defineInRange("Channel ID", 0L, 0L, Long.MAX_VALUE);
+		builder.push("General");
+		this.botMode = builder.comment("In which mode the Bot is supposed to work.").defineEnum("Circulation Bot Mode",
+			BotMode.ONLY_SHOW_AVAILABLE);
 
-      this.messageId = builder.comment("DO NOT TOUCH. WILL BE GENERATED").defineInRange("Message ID", 0L, 0L,
-            Long.MAX_VALUE);
+		this.channelId = builder.comment(
+			"Channel ID to where the Circulation Messages will be send. Please make sure the bot has write access!")
+			.defineInRange("Channel ID", 0L, 0L, Long.MAX_VALUE);
 
-      this.showStatus = builder.comment(
-            "Show the current Status of the Fruit as well if it has one")
-            .define("Show Fruit Status", false);
+		this.messageId = builder.comment("DO NOT TOUCH. WILL BE GENERATED").defineInRange("Message ID", 0L, 0L,
+			Long.MAX_VALUE);
 
-      builder.push("Emojis");
-      this.useEmojis = builder.comment("Use emojis to show the rarity of a fruit").define("Use Emojis", false);
+		this.showStatus = builder.comment(
+			"Show the current Status of the Fruit as well if it has one")
+			.define("Show Fruit Status", false);
 
-      this.goldBoxEmojiId = builder.comment("Discord Emoji ID to represent a Gold Box.")
-            .defineInRange("Gold Box Emoji ID", 0L, 0L, Long.MAX_VALUE);
+		builder.pop();
 
-      this.ironBoxEmojiId = builder.comment("Discord Emoji ID to represent an Iron Box.")
-            .defineInRange("Iron Box Emoji ID", 0L, 0L, Long.MAX_VALUE);
+		// Emoji config
 
-      this.woodenBoxEmojiId = builder.comment("Discord Emoji ID to represent a Wooden Box.")
-            .defineInRange("Wooden Box Emoji ID", 0L, 0L, Long.MAX_VALUE);
-      builder.pop();
+		builder.push("Emojis");
+		this.useEmojis = builder.comment("Use emojis to show the rarity of a fruit").define("Use Emojis", false);
 
-      builder.push("EmbedDesign");
-      this.embedColor = builder.comment("Color for the generated Embed in Hexadecimal").define("Color Hex", "0xFFD700");
+		this.goldBoxEmojiId = builder.comment("Discord Emoji ID to represent a Gold Box.")
+			.defineInRange("Gold Box Emoji ID", 0L, 0L, Long.MAX_VALUE);
 
-      this.embedTitle = builder.comment("The title of the Embed").define("Embed Title",
-            "Current Devilfruit Circulation");
+		this.ironBoxEmojiId = builder.comment("Discord Emoji ID to represent an Iron Box.")
+			.defineInRange("Iron Box Emoji ID", 0L, 0L, Long.MAX_VALUE);
 
-      this.embedFooter = builder.comment("The footer of the Embed").define("Embed Footer",
-            "Made by DerHammerclock | Last updated");
+		this.woodenBoxEmojiId = builder.comment("Discord Emoji ID to represent a Wooden Box.")
+			.defineInRange("Wooden Box Emoji ID", 0L, 0L, Long.MAX_VALUE);
+		builder.pop();
 
-      this.embedShowLastUpdated = builder.comment("Show a date next to the footer when the embed has been updated")
-            .define("Show Last Updated", true);
+		// Embed config
+		
+		builder.push("EmbedDesign");
+		this.embedColor = builder.comment("Color for the generated Embed in Hexadecimal").define("Color Hex", "0xFFD700");
 
-      this.embedSortByTier = builder.comment("Sort Devil Fruits by their Tier").define("Sort By Tier", true);
+		this.embedTitle = builder.comment("The title of the Embed").define("Embed Title",
+			"Current Devilfruit Circulation");
 
-      this.embedSortByAlphabet = builder.comment("Sort Devil Fruits by Alphabet").define("Sort by Alphabet", false);
+		this.embedFooter = builder.comment("The footer of the Embed").define("Embed Footer",
+			"Made by DerHammerclock | Last updated");
 
-      builder.pop();
+		this.embedShowLastUpdated = builder.comment("Show a date next to the footer when the embed has been updated")
+			.define("Show Last Updated", true);
 
-      builder.pop();
-   }
+		this.embedSortByTier = builder.comment("Sort Devil Fruits by their Tier").define("Sort By Tier", true);
 
-   public BotMode getBotMode() {
-      return this.botMode.get();
-   }
+		this.embedSortByAlphabet = builder.comment("Sort Devil Fruits by Alphabet").define("Sort by Alphabet", false);
+	
+		builder.pop();
+	}
 
-   public String getBotToken() {
-      return this.botToken.get();
-   }
+	public BotMode getBotMode() {
+		return this.botMode.get();
+	}
 
-   public long getChannelId() {
-      return this.channelId.get();
-   }
+	public long getChannelId() {
+		return this.channelId.get();
+	}
 
-   public boolean getUseEmojis() {
-      return this.useEmojis.get();
-   }
+	public boolean useEmojis() {
+		return this.useEmojis.get();
+	}
 
-   public long getGoldBoxEmojiId() {
-      return this.goldBoxEmojiId.get();
-   }
+	public long getGoldBoxEmojiId() {
+		return this.goldBoxEmojiId.get();
+	}
 
-   public long getIronBoxEmojiId() {
-      return this.ironBoxEmojiId.get();
-   }
+	public long getIronBoxEmojiId() {
+		return this.ironBoxEmojiId.get();
+	}
 
-   public long getWoodenBoxEmojiId() {
-      return this.woodenBoxEmojiId.get();
-   }
+	public long getWoodenBoxEmojiId() {
+		return this.woodenBoxEmojiId.get();
+	}
 
-   public String getEmbedColor() {
-      return this.embedColor.get();
-   }
+	public String getEmbedColor() {
+		return this.embedColor.get();
+	}
 
-   public String getEmbedTitle() {
-      return this.embedTitle.get();
-   }
+	public String getEmbedTitle() {
+		return this.embedTitle.get();
+	}
 
-   public String getEmbedFooter() {
-      return this.embedFooter.get();
-   }
+	public String getEmbedFooter() {
+		return this.embedFooter.get();
+	}
 
-   public boolean getEmbedShowLastUpdated() {
-      return this.embedShowLastUpdated.get();
-   }
+	public boolean embedShowLastUpdated() {
+		return this.embedShowLastUpdated.get();
+	}
 
-   public boolean getShowStatus() {
-      return this.showStatus.get();
-   }
+	public boolean showStatus() {
+		return this.showStatus.get();
+	}
 
-   public long getGuildId() {
-      return this.serverId.get();
-   }
+	public boolean embedSortByTier() {
+		return this.embedSortByTier.get();
+	}
 
-   public boolean getEmbedSortByTier() {
-      return this.embedSortByTier.get();
-   }
+	public boolean embedSortByAlphabet() {
+		return this.embedSortByAlphabet.get();
+	}
 
-   public boolean getEmbedSortByAlphabet() {
-      return this.embedSortByAlphabet.get();
-   }
+	public long getMessageId() {
+		return this.messageId.get();
+	}
 
-   public long getMessageId() {
-      return this.messageId.get();
-   }
-
-   public void setMessageId(long messageId) {
-      this.messageId.set(messageId);
-      this.messageId.save();
-   }
+	public void setMessageId(long messageId) {
+		this.messageId.set(messageId);
+		this.messageId.save();
+	}
 }
