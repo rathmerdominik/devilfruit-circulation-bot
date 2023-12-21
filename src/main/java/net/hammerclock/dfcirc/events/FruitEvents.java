@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.apache.logging.log4j.Logger;
 
@@ -20,13 +21,17 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
 import net.hammerclock.dfcirc.DevilFruitCirculationMod;
 import net.hammerclock.dfcirc.config.CommonConfig;
 import net.hammerclock.dfcirc.types.FruitData;
 import net.hammerclock.dfcirc.types.TierBox;
 
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
+import net.minecraftforge.common.UsernameCache;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 
 import xyz.pixelatedw.mineminenomi.api.OneFruitEntry;
@@ -44,42 +49,55 @@ public final class FruitEvents {
 	private static final int MAX_FRUITS_PER_LINE = 5;
 	private static final String REPORT_ERROR_HERE = "This should not have happened! Please open a github issue here https://github.com/rathmerdominik/MineMineNoMiDevilFruitCirculationBot/issues with reproduction steps!";
 	
-	private FruitEvents() {
-		throw new IllegalStateException("Utility class");
+	private World world;
+
+	public FruitEvents() {
+		// Needed for Forge and to satisfy SonarLint
 	}
-	
+
+	@SuppressWarnings("java:S3242")
+	// java:S3242 There is no reason to use a more general event if there is a very specific event for my use case
 	@SubscribeEvent
-	public static void onServerStartedEvent(FMLServerStartedEvent event) {
+	void onServerStartedEvent(FMLServerStartedEvent event) {
+		this.world = event.getServer().getLevel(World.OVERWORLD);
 		getFruitDataAndSendEmbed();
 	} 
 
+	@SuppressWarnings("java:S3242")
+	// java:S3242 There is no reason to use a more general event if there is a very specific event for my use case
 	@SubscribeEvent
-	public static void onFruitDroppedEvent(DroppedDevilFruitEvent event){
+	void onFruitDroppedEvent(DroppedDevilFruitEvent event){
 		getFruitDataAndSendEmbed();
 	}
 
+	@SuppressWarnings("java:S3242")
+	// java:S3242 There is no reason to use a more general event if there is a very specific event for my use case
 	@SubscribeEvent
-	public static void onFruitInInventoryEvent(InventoryDevilFruitEvent event){
+	void onFruitInInventoryEvent(InventoryDevilFruitEvent event){
 		getFruitDataAndSendEmbed();
 	}
 
+	@SuppressWarnings("java:S3242")
+	// java:S3242 There is no reason to use a more general event if there is a very specific event for my use case
 	@SubscribeEvent
-	public static void onFruitEatenEvent(EatDevilFruitEvent event){
+	void onFruitEatenEvent(EatDevilFruitEvent event){
 		getFruitDataAndSendEmbed();
 	}
 
+	@SuppressWarnings("java:S3242")
+	// java:S3242 There is no reason to use a more general event if there is a very specific event for my use case
 	@SubscribeEvent
-	public static void onFruitLostEvent(LostDevilFruitEvent event){
+	void onFruitLostEvent(LostDevilFruitEvent event){
 		getFruitDataAndSendEmbed();
 	}
 
-	private static void getFruitDataAndSendEmbed(){
+	private void getFruitDataAndSendEmbed(){
 		Map<String, FruitData> fruitData = getFruitData();
 		EmbedBuilder eb = generateEmbed(fruitData);
 		buildAndSendEmbed(eb);
 	}
 
-	private static Map<String, FruitData> getFruitData() {
+	private Map<String, FruitData> getFruitData() {
 		HashMap<String, FruitData> fruitDataMap = new HashMap<>();
 		ExtendedWorldData extendedWorldData = ExtendedWorldData.get();
 
@@ -116,7 +134,7 @@ public final class FruitEvents {
 	@SuppressWarnings({"java:S1696", "java:S1774"})
 	// java:S1696 Catching a NullPointer makes more sense instead of if/else checking for every emoji's existence
 	// java:S1774 Ternary is way more readable in this instance then multiple nested if/else
-	private static String formatWithDecoration(FruitData fruitEntry) {
+	private String formatWithDecoration(FruitData fruitEmbedEntry) {
 		String formattedString = "";
 		
 		String goldBoxEmoji = "";
@@ -135,29 +153,62 @@ public final class FruitEvents {
 		}
 
 		String formatString = "%s**%s**";
-		switch (fruitEntry.getDevilFruitTier()) {
+		switch (fruitEmbedEntry.getDevilFruitTier()) {
 			case GOLD:
-				formattedString = String.format(formatString, goldBoxEmoji, fruitEntry.getDevilFruitName());
+				formattedString = String.format(formatString, goldBoxEmoji, fruitEmbedEntry.getDevilFruitName());
 				break;
 			case IRON:
-				formattedString = String.format(formatString, ironBoxEmoji, fruitEntry.getDevilFruitName());
+				formattedString = String.format(formatString, ironBoxEmoji, fruitEmbedEntry.getDevilFruitName());
 				break;
 			case WOODEN:
-				formattedString = String.format(formatString, woodenBoxEmoji, fruitEntry.getDevilFruitName());
+				formattedString = String.format(formatString, woodenBoxEmoji, fruitEmbedEntry.getDevilFruitName());
 				break;
 			default:
 				LOGGER.fatal(REPORT_ERROR_HERE);
-				LOGGER.fatal("Provide this context: DevilFruitTier {}", fruitEntry.getDevilFruitTier());
-		}		
+				LOGGER.fatal("Provide this context: DevilFruitTier {}", fruitEmbedEntry.getDevilFruitTier());
+		}
 
 		if (CommonConfig.INSTANCE.showStatus()) {
+			if(CommonConfig.INSTANCE.showPlayerNameAsStatus() && fruitEmbedEntry.getDevilFruitStatus().isPresent()) {
+
+				ExtendedWorldData worldData = ExtendedWorldData.get();
+				if(worldData == null) {
+					throw new IllegalStateException(REPORT_ERROR_HERE);
+				}
+
+				OneFruitEntry entry = worldData.getOneFruitEntry(fruitEmbedEntry.devilFruitKey);
+				if(entry == null) {
+					throw new IllegalStateException(REPORT_ERROR_HERE);
+				}
+
+				Status fruitStatus = fruitEmbedEntry.getDevilFruitStatus().get();
+
+				if("IN_USE".equals(fruitStatus.name()) || "INVENTORY".equals(fruitStatus.name())) {
+					formattedString = String.format("%s%n__Player:__ %s", formattedString, getOwnerName(entry, world));
+				}
+			}
+
 			formattedString = String.format("%s%n__Status:__ %s", formattedString,
-				fruitEntry.getDevilFruitStatus().isPresent()
-						? fruitEntry.getDevilFruitStatus().orElseThrow(IllegalArgumentException::new).name()
+				fruitEmbedEntry.getDevilFruitStatus().isPresent()
+						? fruitEmbedEntry.getDevilFruitStatus().orElseThrow(IllegalArgumentException::new).name()
 						: "Free");
 		}
 
 		return formattedString;
+	}
+
+	private static String getOwnerName(OneFruitEntry entry, IWorld world) {
+		String playerName = "";
+		if(entry.getOwner().isPresent())
+		{
+			if(world.getPlayerByUUID(entry.getOwner().get()) != null)
+				playerName = world.getPlayerByUUID(entry.getOwner().get()).getDisplayName().getString();
+			else if(UsernameCache.getLastKnownUsername(entry.getOwner().get()) != null)
+				playerName = UsernameCache.getLastKnownUsername(entry.getOwner().get());
+			else
+				throw new IllegalArgumentException("No Player name found for fruit!");
+		}
+		return playerName;
 	}
 
 	/**
@@ -299,7 +350,7 @@ public final class FruitEvents {
 	 * @param fruitData Fruit data to sort and fill the embed with
 	 * @return An EmbedBuilder that has formatted sorted fruits based on available fruits 
 	 */
-	private static EmbedBuilder buildEmbedShowAvailable(EmbedBuilder eb, Map<String, FruitData> fruitData) {
+	private EmbedBuilder buildEmbedShowAvailable(EmbedBuilder eb, Map<String, FruitData> fruitData) {
 		eb.addField("Available Devil Fruits", "", false);
 
 		List<FruitData> sortedFruitData = sortFruits(fruitData);
@@ -334,7 +385,7 @@ public final class FruitEvents {
 	 * @param fruitData Fruit data to sort and fill the embed with
 	 * @return An EmbedBuilder that has formatted sorted fruits based on unavailable fruits 
 	 */
-	private static EmbedBuilder buildEmbedShowUnavailable(EmbedBuilder eb, Map<String, FruitData> fruitData) {
+	private EmbedBuilder buildEmbedShowUnavailable(EmbedBuilder eb, Map<String, FruitData> fruitData) {
 		eb.addField("Unavailable Devil Fruits", "", false);
 
 		List<FruitData> sortedFruitData = sortFruits(fruitData);
@@ -369,7 +420,7 @@ public final class FruitEvents {
 	 * @param fruitData
 	 * @return An EmbedBuilder that has formatted sorted fruits based on unavailable and available fruits 
 	 */
-	private static EmbedBuilder buildEmbedShowBoth(EmbedBuilder eb, Map<String, FruitData> fruitData) {
+	private EmbedBuilder buildEmbedShowBoth(EmbedBuilder eb, Map<String, FruitData> fruitData) {
 		EmbedBuilder available = buildEmbedShowAvailable(eb, fruitData);
 		return buildEmbedShowUnavailable(available, fruitData);
 	}
@@ -382,7 +433,7 @@ public final class FruitEvents {
 	 */
 	@SuppressWarnings("java:S4165")
 	// java:S4165 The value is NOT the same as new things are added to the embed builder
-	private static EmbedBuilder generateEmbed(Map<String, FruitData> fruitData) {
+	private EmbedBuilder generateEmbed(Map<String, FruitData> fruitData) {
 		EmbedBuilder eb = new EmbedBuilder();
 
 		eb.setTitle(CommonConfig.INSTANCE.getEmbedTitle());

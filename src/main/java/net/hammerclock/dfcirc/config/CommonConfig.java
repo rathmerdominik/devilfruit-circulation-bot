@@ -23,13 +23,14 @@ public class CommonConfig {
 	private ForgeConfigSpec.LongValue channelId;
 	private ForgeConfigSpec.LongValue messageId;
 	private ForgeConfigSpec.BooleanValue showStatus;
+	private ForgeConfigSpec.BooleanValue showPlayerNameAsStatus;
 
 	// Emoji config values
 	private ForgeConfigSpec.BooleanValue useEmojis;
 	private ForgeConfigSpec.LongValue goldBoxEmojiId;
 	private ForgeConfigSpec.LongValue ironBoxEmojiId;
 	private ForgeConfigSpec.LongValue woodenBoxEmojiId;
-	
+
 	// Embed config values
 	private ForgeConfigSpec.ConfigValue<String> embedColor;
 	private ForgeConfigSpec.ConfigValue<String> embedTitle;
@@ -71,6 +72,10 @@ public class CommonConfig {
 		this.showStatus = builder.comment(
 			"Show the current Status of the Fruit as well if it has one")
 			.define("Show Fruit Status", false);
+
+		this.showPlayerNameAsStatus = builder.comment(
+			"Show the player name if the fruit status is INVENTORY or IN_USE. Requires Show Fruit Status to be true")
+			.define("Show Player Name as Status", false);
 
 		builder.pop();
 
@@ -152,6 +157,10 @@ public class CommonConfig {
 
 	public boolean showStatus() {
 		return this.showStatus.get();
+	}
+
+	public boolean showPlayerNameAsStatus() {
+		return showPlayerNameAsStatus.get();
 	}
 
 	public boolean embedSortByTier() {

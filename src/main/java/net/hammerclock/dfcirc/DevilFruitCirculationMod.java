@@ -48,11 +48,7 @@ public final class DevilFruitCirculationMod {
 			LOGGER.error("Discord Integration is not properly set up!");
 			return;
 		}
-		MinecraftForge.EVENT_BUS.addListener(FruitEvents::onServerStartedEvent);
-		MinecraftForge.EVENT_BUS.addListener(FruitEvents::onFruitDroppedEvent);
-		MinecraftForge.EVENT_BUS.addListener(FruitEvents::onFruitInInventoryEvent);
-		MinecraftForge.EVENT_BUS.addListener(FruitEvents::onFruitEatenEvent);
-		MinecraftForge.EVENT_BUS.addListener(FruitEvents::onFruitLostEvent);
+		MinecraftForge.EVENT_BUS.register(new FruitEvents());
 
 		LOGGER.info("Successfully started Devil Fruit Circulation bot!");
 	}
