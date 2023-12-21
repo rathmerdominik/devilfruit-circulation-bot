@@ -45,7 +45,7 @@ import xyz.pixelatedw.mineminenomi.items.AkumaNoMiItem;
 public final class FruitEvents {
 	private static final Logger LOGGER = DevilFruitCirculationMod.LOGGER;
 	private static final int MAX_FRUITS_PER_LINE = 5;
-	private static final String REPORT_ERROR_HERE = "This should not have happened! Please open a github issue here https://github.com/rathmerdominik/MineMineNoMiDevilFruitCirculationBot/issues with reproduction steps!";
+	private static final String REPORT_ERROR_HERE = "This should not have happened! Please open a github issue here https://github.com/rathmerdominik/devilfruit-circulation-bot/issues with reproduction steps!";
 	
 	private World world;
 
