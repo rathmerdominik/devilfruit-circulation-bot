@@ -38,15 +38,17 @@ A configurable Devil Fruit circulation bot that sends realtime Fruit Changes to 
 
 This mod requires One Fruit per World Option to be set to anything but None.
 '''
-[[dependencies.mineminenomi]] 
+
+[[dependencies.dfcirc]] 
 modId = "mineminenomi"
 mandatory = true
 versionRange = "[0.9.5,)"
 ordering = "AFTER"
 side = "SERVER"
-[[dependencies.dcintegration]]
+
+[[dependencies.dfcirc]]
 modId = "dcintegration"
 mandatory = true
-versionRange = "[3.0.3,)"
+versionRange = "[3.0.5,)"
 ordering = "AFTER"
 side = "SERVER"
