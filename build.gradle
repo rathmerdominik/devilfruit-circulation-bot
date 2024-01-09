@@ -1,32 +1,28 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-    }
-}
 plugins {
-	id 'com.github.johnrengelman.shadow' version '7.1.2'
-}
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'com.modrinth.minotaur' version '2.+'
+    }
 
-version = "${minecraft_version}-${mod_version}"
-group = "${mod_group_id}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "${mod_id}"
+version = mod_version
+group = mod_group_id
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8) // Mojang ships Java 8 to end users, so your mod should target Java 8.
-repositories {
-   maven { url "https://repo.erdbeerbaerlp.de/repository/maven-public/" }
-}
-println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+base {
+    archivesName = mod_id
+    }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+
+println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
-    mappings channel: "${mapping_channel}", version: "${mapping_version}"
+    mappings channel: mapping_channel, version: mapping_version
+ 
+    copyIdeResources = true
+
     runs {
-        server {
+        configureEach {
             workingDirectory project.file('run')
 
             property 'forge.logging.markers', 'REGISTRIES'
@@ -34,49 +30,92 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             mods {
-                dfcirc {
+                "${mod_id}" {
                     source sourceSets.main
                 }
             }
+        }
+
+        client {
+            // this block needs to be here for runClient to exist
+        }
+
+        server {
+            args '--nogui'
+        }
+
+        data {
+            workingDirectory project.file('run-data')
+
+            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
         }
     }
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+repositories {
+    maven { url "https://repo.erdbeerbaerlp.de/repository/maven-public/" }
+}
+
+configurations {
+    shade
+    implementation.extendsFrom shade
+}
+
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    
+
     implementation('de.erdbeerbaerlp:dcintegration.common:3.0.5-j8')
-    implementation files('libs/mine-mine-no-mi-0.9.5-HAMMER.jar')
+    implementation files('libs/mine-mine-no-mi-1.16.5-0.9.5-HAMMER.jar')
 }
 
-jar {
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            minecraft_version           : minecraft_version, 
+            minecraft_version_range     : minecraft_version_range,
+            forge_version               : forge_version, 
+            forge_version_range         : forge_version_range,
+            loader_version_range        : loader_version_range,
+            mod_id                      : mod_id, 
+            mod_name                    : mod_name, 
+            mod_license                 : mod_license, 
+            mod_version                 : mod_version,
+            mod_authors                 : mod_authors, 
+            mod_description             : mod_description, 
+            modrinth_changelog          : modrinth_changelog,
+            modrinth_version_type       : modrinth_version_type
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+tasks.named('jar', Jar).configure {
     manifest {
         attributes([
-            "Specification-Title": "${mod_id}",
-            "Specification-Vendor": "${mod_authors}",
-            "Specification-Version": "1",
-            "Implementation-Title": project.name,
-            "Implementation-Version": "${mod_version}",
-            "Implementation-Vendor" :"${mod_authors}",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+                'Specification-Title'     : mod_id,
+                'Specification-Vendor'    : mod_authors,
+                'Specification-Version'   : '1', // We are version 1 of ourselves
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : project.jar.archiveVersion,
+                'Implementation-Vendor'   : mod_authors,
+                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE 
 }
-
-jar.finalizedBy('reobfJar') 
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        register('mavenJava', MavenPublication) {
             artifact jar
         }
     }
     repositories {
         maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
+            url "file://${project.projectDir}/mcmodsrepo"
         }
         flatDir {
             dirs 'libs'
@@ -84,19 +123,111 @@ publishing {
     }
 }
 
-shadowJar {
-    classifier ''
-
-    configurations = [project.configurations.shadow]
-}
-
-reobf {
-    shadowJar {}
-}
-
-compileJava {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-    options.incremental = true
-
-    targetCompatibility = "1.8"
 }
+
+// Quite the Monster i wrote here. Will improve with types and better structure soonTM
+// It works for my use case for now.
+
+def updateChangelog(changelogMessage, changelogType, versionType, latestVersion, updateRecommended = false) {
+    def jsonFile = file('updates.json')
+    def jsonSlurper = new groovy.json.JsonSlurper()
+    def json = jsonSlurper.parse(jsonFile)
+
+    def versionChangelog = json.'1.16.5'
+
+    def versionIncrement = changelogType.toUpperCase() == 'PATCH' ? 3 :
+                            changelogType.toUpperCase() == 'MINOR' ? 2 :
+                            changelogType.toUpperCase() == 'MAJOR' ? 1 : 0
+
+    def newVersion = latestVersion.split("\\.").collect { it as Integer }
+
+    if(versionIncrement == 2) {
+        newVersion[2] = 0
+    } else if (versionIncrement == 1) {
+        newVersion[1] = 0
+        newVersion[2] = 0
+    }
+    newVersion[versionIncrement - 1] += 1
+    newVersion = newVersion.collect { it.toString() }.join(".")
+
+    json.promos."1.16.5-latest" = newVersion
+    if(updateRecommended) {
+        json.promos."1.16.5-recommended" = newVersion
+    }
+    versionChangelog[newVersion] = changelogMessage
+
+    project.ext.mod_version = newVersion
+
+    def gradlePropertiesFile = file('gradle.properties')
+    def gradleProperties = new Properties()
+    def changelog = readChangelogFile(newVersion, versionType)
+
+    gradleProperties.load(new FileInputStream(gradlePropertiesFile))
+    gradleProperties.setProperty('mod_version', newVersion)
+    gradleProperties.setProperty('modrinth_version_type', versionType)
+    gradleProperties.setProperty('modrinth_changelog', changelog)
+    gradleProperties.store(gradlePropertiesFile.newWriter(), null)
+
+    jsonFile.text = new groovy.json.JsonBuilder(json).toPrettyString()
+
+    println "Version: " + newVersion
+    println "Changelog" + changelog
+}
+
+def readChangelogFile(version, versionType) {
+    def changelogFileName = "changelogs/${version.replaceAll("\\.", "-")}-${versionType}.md"
+    def changelogFile = file(changelogFileName)
+
+    if (changelogFile.exists()) {
+        return changelogFile.text
+    } else {
+        throw new GradleException("Changelog for version ${version}-${versionType} is missing!")
+    }
+}
+
+tasks.register("updateInformation") {
+    doLast {
+        def versionType = System.getenv("VERSION_TYPE")
+        def changelogMessage = System.getenv("CHANGELOG_MESSAGE")
+        def changelogType = System.getenv("CHANGELOG_TYPE")
+
+        if ( versionType != null && 
+             changelogMessage != null && 
+             changelogType != null) {
+
+            def jsonFile = file("updates.json")
+            def jsonSlurper = new groovy.json.JsonSlurper()
+            def json = jsonSlurper.parse(jsonFile)
+            def versionChangelog = json.'1.16.5'
+
+            def latestVersion = versionChangelog.keySet().toList().sort().last()
+
+            if(versionType == "release") {
+                updateChangelog(changelogMessage, changelogType, versionType, latestVersion, true)
+            } else {
+                updateChangelog(changelogMessage, changelogType, versionType, latestVersion)
+            }
+        } else {
+            throw new GradleException("'changelogType', 'changelogMessage' and 'versionType' need to be set in the environment.")
+        }
+    }
+}
+
+modrinth {
+    token = System.getenv("MODRINTH_TOKEN")
+    projectId = "${mod_id}"
+    versionNumber = "${mod_version}"
+    versionType = "${modrinth_version_type}"
+    uploadFile = jar
+    gameVersions = ["${minecraft_version}"]
+    changelog = "${modrinth_changelog}"
+    dependencies {
+        required.project "dcintegration"
+        required.project "mine-mine-no-mi"
+    }
+    syncBodyFrom = rootProject.file("README_MODRINTH.md").text
+}
+
+tasks.modrinth.dependsOn(tasks.modrinthSyncBody)
