@@ -49,41 +49,27 @@ public final class FruitEvents {
 	
 	private World world;
 
-	public FruitEvents() {
-		// Needed for Forge and to satisfy SonarLint
-	}
-
-	@SuppressWarnings("java:S3242")
-	// java:S3242 There is no reason to use a more general event if there is a very specific event for my use case
 	@SubscribeEvent
 	void onServerStartedEvent(FMLServerStartedEvent event) {
 		this.world = event.getServer().getLevel(World.OVERWORLD);
 		getFruitDataAndSendEmbed();
 	} 
 
-	@SuppressWarnings("java:S3242")
-	// java:S3242 There is no reason to use a more general event if there is a very specific event for my use case
 	@SubscribeEvent
 	void onFruitDroppedEvent(DroppedDevilFruitEvent event){
 		getFruitDataAndSendEmbed();
 	}
 
-	@SuppressWarnings("java:S3242")
-	// java:S3242 There is no reason to use a more general event if there is a very specific event for my use case
 	@SubscribeEvent
 	void onFruitInInventoryEvent(InventoryDevilFruitEvent event){
 		getFruitDataAndSendEmbed();
 	}
 
-	@SuppressWarnings("java:S3242")
-	// java:S3242 There is no reason to use a more general event if there is a very specific event for my use case
 	@SubscribeEvent
 	void onFruitEatenEvent(EatDevilFruitEvent event){
 		getFruitDataAndSendEmbed();
 	}
 
-	@SuppressWarnings("java:S3242")
-	// java:S3242 There is no reason to use a more general event if there is a very specific event for my use case
 	@SubscribeEvent
 	void onFruitLostEvent(LostDevilFruitEvent event){
 		getFruitDataAndSendEmbed();
@@ -95,7 +81,7 @@ public final class FruitEvents {
 		buildAndSendEmbed(eb);
 	}
 
-	private Map<String, FruitData> getFruitData() {
+	private static Map<String, FruitData> getFruitData() {
 		HashMap<String, FruitData> fruitDataMap = new HashMap<>();
 		ExtendedWorldData extendedWorldData = ExtendedWorldData.get();
 
@@ -129,9 +115,6 @@ public final class FruitEvents {
 	 * @param fruitEntry
 	 * @return A formatted string
 	 */
-	@SuppressWarnings({"java:S1696", "java:S1774"})
-	// java:S1696 Catching a NullPointer makes more sense instead of if/else checking for every emoji's existence
-	// java:S1774 Ternary is way more readable in this instance then multiple nested if/else
 	private String formatWithDecoration(FruitData fruitEmbedEntry) {
 		String formattedString = "";
 		
@@ -147,7 +130,7 @@ public final class FruitEvents {
 			}
 		} catch (NullPointerException e) {
 			LOGGER.debug(e);
-			LOGGER.error("One of the Emojis has an invalid ID!");
+			LOGGER.error("One of the Emojis have an invalid ID!");
 		}
 
 		String formatString = "%s**%s**";
@@ -187,6 +170,13 @@ public final class FruitEvents {
 		return formattedString;
 	}
 
+	/**
+	 * Get fruit owner name first from online player and if not found from the user cache
+	 * 
+	 * @param entry 
+	 * @return Name of the owner of the fruit entry
+	 * 
+	 */
 	private static String getOwnerName(OneFruitEntry entry, IWorld world) {
 		String playerName = "";
 		if(entry.getOwner().isPresent())
@@ -307,8 +297,6 @@ public final class FruitEvents {
 		
 		Thread embedSend = new Thread() {
 			@Override
-			@SuppressWarnings("java:S1120")
-			// java:S1120 I see no world where that would make sense. Basically indent everything by removing a tab in this function.
 			public void run() {
 				try {
 					if (CommonConfig.INSTANCE.getMessageId() == 0L) {
@@ -385,7 +373,7 @@ public final class FruitEvents {
 
 			if (fruitEntry.getDevilFruitStatus().isPresent() && 
 				fruitEntry.getDevilFruitStatus().orElseThrow(IllegalArgumentException::new) != Status.LOST) {
-				
+
 				if (batchFruit.size() == MAX_FRUITS_PER_LINE) {
 					eb.addField("", String.join("\n", batchFruit), true);
 					batchFruit.clear();
@@ -419,8 +407,6 @@ public final class FruitEvents {
 	 * @param fruitData
 	 * @return The finished and formatted embed builder
 	 */
-	@SuppressWarnings("java:S4165")
-	// java:S4165 The value is NOT the same as new things are added to the embed builder
 	private EmbedBuilder generateEmbed(Map<String, FruitData> fruitData) {
 		EmbedBuilder eb = new EmbedBuilder();
 
