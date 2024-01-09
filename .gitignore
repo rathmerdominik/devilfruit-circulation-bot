@@ -14,18 +14,17 @@ out
 .idea
 
 # vscode
-.history/
-.vscode/
+.history
+.vscode
 
 # gradle
 build
 .gradle
-libs/*
-!libs/.gitkeep
 
 # other
 eclipse
 run
+libs/
 
 # Files from Forge MDK
 forge*changelog.txt

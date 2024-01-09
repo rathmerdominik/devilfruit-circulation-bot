@@ -4,10 +4,17 @@ import net.hammerclock.dfcirc.config.CommonConfig;
 import net.hammerclock.dfcirc.events.FruitEvents;
 
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ExtensionPoint;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.VersionChecker;
+import net.minecraftforge.fml.VersionChecker.CheckResult;
+import net.minecraftforge.fml.VersionChecker.Status;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig.Type;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.network.FMLNetworkConstants;
 
@@ -17,27 +24,29 @@ import org.apache.logging.log4j.Logger;
 
 import de.erdbeerbaerlp.dcintegration.common.DiscordIntegration;
 
-@Mod(DevilFruitCirculationMod.MOD_ID)
+@Mod(DevilFruitCirculationMod.PROJECT_ID)
 public final class DevilFruitCirculationMod {
-	public static final String MOD_ID = "dfcirc";
+	public static final String PROJECT_ID = "dfcirc";
 
-	@SuppressWarnings("java:S1312")
-	// java:S1312 While this rule makes complete sense for any other proper Java application it does not make sense in Minecraft's twisted world
 	public static final Logger LOGGER = LogManager.getLogger();
 
-	@SuppressWarnings("java:S1118")
-	// java:S1118 Yet another Minecraft thing. This method is called over reflection by Forge...
 	public DevilFruitCirculationMod() {
-		// Make mod only needed on the server side
 		ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.DISPLAYTEST,
 			() -> Pair.of(() -> FMLNetworkConstants.IGNORESERVERONLY, (a, b) -> true));
 
 		ModLoadingContext context = ModLoadingContext.get();
+
 		context.registerConfig(Type.COMMON, CommonConfig.CONFIG, "dfcirc-common.toml");
-		MinecraftForge.EVENT_BUS.addListener(DevilFruitCirculationMod::onServerStarting);
+
+		MinecraftForge.EVENT_BUS.register(DevilFruitCirculationMod.class);
 	}
 
-	private static void onServerStarting(FMLServerStartingEvent event) {
+	@SubscribeEvent
+	static void onServerStarted(FMLServerStartingEvent event) {
+		CheckResult result = VersionChecker.getResult(ModList.get().getModContainerById(PROJECT_ID).orElseThrow(IllegalArgumentException::new).getModInfo());
+		if(result.status == Status.OUTDATED) {
+			LOGGER.warn("YOUR MOD IS OUTDATED. The latest version is {}. Please get the latest version here: {}", result.target, result.url);
+		}
 		if (!xyz.pixelatedw.mineminenomi.config.CommonConfig.INSTANCE.hasOneFruitPerWorldExtendedLogic()
 			|| !xyz.pixelatedw.mineminenomi.config.CommonConfig.INSTANCE.hasOneFruitPerWorldSimpleLogic()) {
 			LOGGER.error("Mine Mine no Mi has One Fruit per World config not set to either SIMPLE or EXTENDED!");
@@ -49,7 +58,5 @@ public final class DevilFruitCirculationMod {
 			return;
 		}
 		MinecraftForge.EVENT_BUS.register(new FruitEvents());
-
-		LOGGER.info("Successfully started Devil Fruit Circulation bot!");
 	}
 }
