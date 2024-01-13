@@ -1,8 +1,11 @@
 package net.hammerclock.dfcirc.types;
 
 import java.util.Optional;
+
+import lombok.Getter;
 import xyz.pixelatedw.mineminenomi.api.OneFruitEntry;
 
+@Getter
 public class FruitData {
 	public final String devilFruitName;
 	public final String devilFruitKey;
@@ -17,19 +20,4 @@ public class FruitData {
 		this.devilFruitTier = devilFruitTier;
 	}
 
-	public String getDevilFruitName() {
-		return this.devilFruitName;
-	}
-
-	public String getDevilFruitKey() {
-		return this.devilFruitKey;
-	}
-
-	public Optional<OneFruitEntry.Status> getDevilFruitStatus() {
-		return this.devilFruitStatus;
-	}
-
-	public TierBox getDevilFruitTier() {
-		return this.devilFruitTier;
-	}
 }
