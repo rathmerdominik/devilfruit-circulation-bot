@@ -145,8 +145,7 @@ public class AvailableFruitsEmbedGenerator {
 
 			return listFruitData;
 		} else {
-			LOGGER.error(REPORT_ERROR_HERE);
-			LOGGER.error("Provide this context: SortFruits {}", fruitData.values());
+			LOGGER.error("You have disabled sorting by tier and by alphabet!");
 			return new ArrayList<>();
 		}
 	}
@@ -254,7 +253,7 @@ public class AvailableFruitsEmbedGenerator {
 	public void sendAvailableEmbed(Map<String, FruitData> fruitData) {	
 		EmbedBuilder eb = new EmbedBuilder();
 
-		eb.setTitle("**Available**");
+		eb.setTitle("**### Available ###**");
 		eb.setFooter(CommonConfig.INSTANCE.getAvailableEmbedFooter());
 		eb.setColor(Color.decode(CommonConfig.INSTANCE.getAvailableEmbedColor()));
 

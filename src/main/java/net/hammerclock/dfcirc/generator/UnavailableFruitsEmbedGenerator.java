@@ -147,8 +147,7 @@ public class UnavailableFruitsEmbedGenerator {
 
 			return listFruitData;
 		} else {
-			LOGGER.error(REPORT_ERROR_HERE);
-			LOGGER.error("Provide this context: SortFruits {}", fruitData.values());
+			LOGGER.error("You have disabled sorting by tier and by alphabet!");
 			return new ArrayList<>();
 		}
 	}
