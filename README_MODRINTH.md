@@ -1,40 +1,27 @@
-<p align="center">
- <img src="src/main/resources/dfcirc.png" height="500" width="500"/>
-
-<h1 align="center">Devil Fruit Circulation Bot</h1>
-
-<p align="center"> Devil Fruit Circulation Bot is a Minecraft Addon for the popular <a href="https://www.curseforge.com/minecraft/mc-mods/mine-mine-no-mi"> Mine Mine no Mi Mod</a> mod.</p>
-
-<p align="center">
- <img src="image.png"/>
-</p>  
-
-
-## Important
+# Important
 
 In order for the addon to work several changes to the main Mine Mine no Mi mod had to be made.  
-Those changes have already been committed by me to the main mod and will be available with the next Update.  
-Specifics can be found [here](https://github.com/rathmerdominik/MineMineNoMiModded).  
+Those changes have already been committed by me to the main mod and will be available with the next Mine Mine no Mi update.  
+Specifics can be found [here](https://github.com/rathmerdominik/mine-mine-no-mi-modded).  
+#### Download the mod file directly [here](https://github.com/rathmerdominik/mine-mine-no-mi-modded/raw/main/release/mine-mine-no-mi-1.16.5-0.9.5-HAMMER.jar) 
 
 It is imperative that for now this custom version is used. Changes in there are purely server sided. So only you need to install this version on your server.  
 Players can still use the normal Mine Mine no Mi Version.
 
-I HAVE EXPLICIT PERMISSION BY THE CREATOR OF THE MINE MINE NO MI MOD TO REDISTRIBUTE THIS.  
-YOU DO NOT! THEREFORE EVERY FURTHER REDISTRIBUTION HAS TO HAPPEN BY REFERENCING TO THIS PAGE!
+---
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/TroIMIvXcwk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>  
 
+# Devil Fruit Circulatuion Bot 
+This [Mine Mine no Mi](https://modrinth.com/mod/mine-mine-no-mi) Addon uses [Discord Integration](https://modrinth.com/plugin/dcintegration) to show the current devil fruit circulation in discord channels.  
 
-## Installation
+It can display:
+- Available fruits
+- Unavailable fruits
+- The current status of a fruit
+- The current player attached to the status of the fruit
+- The fruit tier defined by Emojis you can freely set
 
-```
-git clone https://github.com/rathmerdominik/MineMineNoMiDevilFruitCirculationBot.git
-cd MineMineNoMiDevilFruitCirculationBot
-cd libs
-curl -O -L https://github.com/rathmerdominik/MineMineNoMiModded/raw/main/release/mine-mine-no-mi-0.9.5-HAMMER.jar
-cd ..
-./gradlew build
-```
-
-From there you can take the jar out of the `build/libs` folder  
+It also allows you to sort the fruits either alphabetically or by tier!
 
 ## Dependencies
 
@@ -43,15 +30,19 @@ This mod depends on the latest 1.16.5 version of [Discord Integration](https://m
 ## Configuration Options
 
 ```toml
-[EmbedDesign]
+["Unavailable Embed Design"]
 	#Color for the generated Embed in Hexadecimal
 	"Color Hex" = "0xFFD700"
+	#Channel ID to where the Unavailable Fruits Embed Message will be sent to. Please make sure the bot has write access!
+	#Range: 0 ~ 9223372036854775807
+	"Channel ID" = 0
 	#Sort Devil Fruits by Alphabet
 	"Sort by Alphabet" = false
+	#DO NOT TOUCH. WILL BE GENERATED
+	#Range: 0 ~ 9223372036854775807
+	"Unavailable Message ID" = 0
 	#Sort Devil Fruits by their Tier
 	"Sort By Tier" = true
-	#The title of the Embed
-	"Embed Title" = "Current Devilfruit Circulation"
 	#The footer of the Embed
 	"Embed Footer" = "Made by DerHammerclock | Last updated"
 	#Show a date next to the footer when the embed has been updated
@@ -59,18 +50,31 @@ This mod depends on the latest 1.16.5 version of [Discord Integration](https://m
 
 [General]
 	#Show the current Status of the Fruit as well if it has one
-	"Show Fruit Status" = false
-	#In which mode the Bot is supposed to work.
-	#Allowed Values: ONLY_SHOW_AVAILABLE, SHOW_AVAILABLE_AND_UNAVAILABLE, ONLY_SHOW_UNAVAILABLE
-	"Circulation Bot Mode" = "ONLY_SHOW_AVAILABLE"
-	#Channel ID to where the Circulation Messages will be send. Please make sure the bot has write access!
+	"Show Fruit Status" = true
+	#Show the Available Fruits Embed
+	"Show Available Embed" = true
+	#Show the Unavailable Fruits Embed
+	"Show Unavailable Embed" = true
+	#Show the player name if the fruit status is INVENTORY or IN_USE. Requires Show Fruit Status to be true
+	"Show Player Name as Status" = true
+
+["Available Embed Design"]
+	#Color for the generated Embed in Hexadecimal
+	"Color Hex" = "0xFFD700"
+	#Channel ID to where the Available Fruits Embed Message will be sent to. Please make sure the bot has write access!
 	#Range: 0 ~ 9223372036854775807
 	"Channel ID" = 0
+	#Sort Devil Fruits by Alphabet
+	"Sort by Alphabet" = false
+	#Sort Devil Fruits by their Tier
+	"Sort By Tier" = true
+	#The footer of the Embed
+	"Embed Footer" = "Made by DerHammerclock | Last updated"
 	#DO NOT TOUCH. WILL BE GENERATED
 	#Range: 0 ~ 9223372036854775807
-	"Message ID" = 0
-	#Show the player name if the fruit status is INVENTORY or IN_USE. Requires Show Fruit Status to be true
-	"Show Player Name as Status" = false
+	"Available Message ID" = 0
+	#Show a date next to the footer when the embed has been updated
+	"Show Last Updated" = true
 
 [Emojis]
 	#Discord Emoji ID to represent a Gold Box.
@@ -80,7 +84,7 @@ This mod depends on the latest 1.16.5 version of [Discord Integration](https://m
 	#Range: 0 ~ 9223372036854775807
 	"Wooden Box Emoji ID" = 0
 	#Use emojis to show the rarity of a fruit
-	"Use Emojis" = false
+	"Use Emojis" = true
 	#Discord Emoji ID to represent an Iron Box.
 	#Range: 0 ~ 9223372036854775807
 	"Iron Box Emoji ID" = 0
