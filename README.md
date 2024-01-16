@@ -26,10 +26,10 @@ YOU DO NOT! THEREFORE EVERY FURTHER REDISTRIBUTION HAS TO HAPPEN BY REFERENCING 
 ## Installation
 
 ```
-git clone https://github.com/rathmerdominik/MineMineNoMiDevilFruitCirculationBot.git
-cd MineMineNoMiDevilFruitCirculationBot
+git clone https://github.com/rathmerdominik/devilfruit-circulation-bot.git
+cd devilfruit-circulation-bot
 cd libs
-curl -O -L https://github.com/rathmerdominik/MineMineNoMiModded/raw/main/release/mine-mine-no-mi-0.9.5-HAMMER.jar
+curl -O -L https://github.com/rathmerdominik/mine-mine-no-mi-modded/raw/main/release/mine-mine-no-mi-1.16.5-0.9.5-HAMMER.jar
 cd ..
 ./gradlew build
 ```
