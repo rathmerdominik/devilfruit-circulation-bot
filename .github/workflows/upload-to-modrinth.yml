@@ -42,7 +42,7 @@ jobs:
       run: |
         cd libs
         curl -LO https://mediafilez.forgecdn.net/files/3419/960/PlayerRevive_v2.0.0-pre04_mc1.16.5.jar
-        curl -LO https://cdn.modrinth.com/data/AWGqBEjs/versions/6bYJl4jj/mine-mine-no-mi-1.16.5-0.9.5.jar
+        curl -LO https://cdn.modrinth.com/data/AWGqBEjs/versions/6bYJl4jj/mine-mine-no-mi-1.16.5-0.10.1.jar
         cd ..
 
     - name: Run ./gradlew updateInformation
