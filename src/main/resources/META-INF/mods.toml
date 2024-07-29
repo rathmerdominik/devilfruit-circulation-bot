@@ -17,7 +17,7 @@ issueTrackerURL="https://github.com/rathmerdominik/devilfruit-circulation-bot/is
 [[dependencies.mineminenomi]] 
 	modId = "mineminenomi"
 	mandatory = true
-	versionRange = "[0.9.5,)"
+	versionRange = "[0.10.1,)"
 	ordering = "AFTER"
 	side = "SERVER"
 

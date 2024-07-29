@@ -67,7 +67,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     implementation('de.erdbeerbaerlp:dcintegration.common:3.0.5-j8')
-    implementation files('libs/mine-mine-no-mi-1.16.5-0.9.5-HAMMER.jar')
+    implementation files('libs/mine-mine-no-mi-1.16.5-0.10.1.jar')
 }
 
 tasks.named('processResources', ProcessResources).configure {

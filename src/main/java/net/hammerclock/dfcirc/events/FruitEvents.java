@@ -6,16 +6,13 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
-import de.erdbeerbaerlp.dcintegration.common.DiscordIntegration;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.internal.requests.RestActionImpl;
 import net.hammerclock.dfcirc.DevilFruitCirculationMod;
 import net.hammerclock.dfcirc.config.CommonConfig;
 import net.hammerclock.dfcirc.generator.AvailableFruitsEmbedGenerator;
 import net.hammerclock.dfcirc.generator.UnavailableFruitsEmbedGenerator;
 import net.hammerclock.dfcirc.types.FruitData;
 import net.hammerclock.dfcirc.types.TierBox;
-
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -90,8 +87,8 @@ public final class FruitEvents {
 		ExtendedWorldData extendedWorldData = ExtendedWorldData.get();
 
 		if (extendedWorldData != null) {
-			for (AkumaNoMiItem fruit : ModValues.devilfruits) {
-				OneFruitEntry entry = extendedWorldData.getOneFruitEntry(fruit.getFruitKey());
+			for (AkumaNoMiItem fruit : ModValues.DEVIL_FRUITS) {
+				OneFruitEntry entry = extendedWorldData.getOneFruitEntry(new ResourceLocation(fruit.getFruitKey()));
 				OneFruitEntry.Status status;
 
 				if (entry == null) {

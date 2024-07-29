@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.hammerclock.dfcirc.DevilFruitCirculationMod;
 import net.hammerclock.dfcirc.config.CommonConfig;
 import net.hammerclock.dfcirc.types.FruitData;
-
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.common.UsernameCache;
@@ -187,7 +187,7 @@ public class UnavailableFruitsEmbedGenerator {
 				throw new IllegalStateException(REPORT_ERROR_HERE);
 			}
 
-			OneFruitEntry entry = worldData.getOneFruitEntry(fruitEmbedEntry.devilFruitKey);
+			OneFruitEntry entry = worldData.getOneFruitEntry(new ResourceLocation(fruitEmbedEntry.devilFruitKey));
 
 			if(entry != null && !getOwnerName(entry, this.world).isEmpty() && CommonConfig.INSTANCE.showPlayerNameAsStatus() && fruitEmbedEntry.getDevilFruitStatus().isPresent()) {
 				LOGGER.debug("Adding player name alongside status as requested");
