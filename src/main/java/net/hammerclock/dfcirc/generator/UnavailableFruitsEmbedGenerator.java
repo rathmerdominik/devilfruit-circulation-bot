@@ -30,7 +30,7 @@ import net.minecraftforge.common.UsernameCache;
 
 import xyz.pixelatedw.mineminenomi.api.OneFruitEntry;
 import xyz.pixelatedw.mineminenomi.api.OneFruitEntry.Status;
-import xyz.pixelatedw.mineminenomi.data.world.ExtendedWorldData;
+import xyz.pixelatedw.mineminenomi.data.world.OFPWWorldData;
 
 public class UnavailableFruitsEmbedGenerator {
 	private static final Logger LOGGER = DevilFruitCirculationMod.LOGGER;
@@ -182,7 +182,7 @@ public class UnavailableFruitsEmbedGenerator {
 
 		if (CommonConfig.INSTANCE.showStatus()) {
 			LOGGER.debug("Status addition requested. Adding formatting for df fruit status");
-			ExtendedWorldData worldData = ExtendedWorldData.get();
+			OFPWWorldData worldData = OFPWWorldData.get();
 			if(worldData == null) {
 				throw new IllegalStateException(REPORT_ERROR_HERE);
 			}

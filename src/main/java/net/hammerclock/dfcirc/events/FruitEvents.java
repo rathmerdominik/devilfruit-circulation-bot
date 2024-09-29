@@ -23,7 +23,7 @@ import xyz.pixelatedw.mineminenomi.api.events.onefruit.DroppedDevilFruitEvent;
 import xyz.pixelatedw.mineminenomi.api.events.onefruit.EatDevilFruitEvent;
 import xyz.pixelatedw.mineminenomi.api.events.onefruit.InventoryDevilFruitEvent;
 import xyz.pixelatedw.mineminenomi.api.events.onefruit.LostDevilFruitEvent;
-import xyz.pixelatedw.mineminenomi.data.world.ExtendedWorldData;
+import xyz.pixelatedw.mineminenomi.data.world.OFPWWorldData;
 import xyz.pixelatedw.mineminenomi.init.ModValues;
 import xyz.pixelatedw.mineminenomi.items.AkumaNoMiItem;
 
@@ -84,7 +84,7 @@ public final class FruitEvents {
 	private static Map<String, FruitData> getFruitData() {
 		LOGGER.debug("Getting fruit data");
 		HashMap<String, FruitData> fruitDataMap = new HashMap<>();
-		ExtendedWorldData extendedWorldData = ExtendedWorldData.get();
+		OFPWWorldData extendedWorldData = OFPWWorldData.get();
 
 		if (extendedWorldData != null) {
 			for (AkumaNoMiItem fruit : ModValues.DEVIL_FRUITS) {

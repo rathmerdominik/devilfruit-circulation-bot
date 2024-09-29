@@ -68,7 +68,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     implementation('de.erdbeerbaerlp:dcintegration.common:3.0.5-j8')
-    implementation fg.deobf("curse.maven:mine-mine-no-mi-78726:5589898")    
+    implementation fg.deobf("curse.maven:mine-mine-no-mi-78726:5762433")
 }
 
 tasks.named('processResources', ProcessResources).configure {

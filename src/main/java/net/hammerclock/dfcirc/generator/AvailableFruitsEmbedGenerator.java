@@ -30,7 +30,7 @@ import net.minecraftforge.common.UsernameCache;
 
 import xyz.pixelatedw.mineminenomi.api.OneFruitEntry;
 import xyz.pixelatedw.mineminenomi.api.OneFruitEntry.Status;
-import xyz.pixelatedw.mineminenomi.data.world.ExtendedWorldData;
+import xyz.pixelatedw.mineminenomi.data.world.OFPWWorldData;
 
 public class AvailableFruitsEmbedGenerator {
 	private static final Logger LOGGER = DevilFruitCirculationMod.LOGGER;
@@ -62,7 +62,6 @@ public class AvailableFruitsEmbedGenerator {
 	/**
 	 * Sorts devil fruits by their rarity.
 	 * 
-	 * @param fruitData
 	 * @return A list of sorted FruitData sorted by their rarity
 	 */
 	private static List<FruitData> sortFruitsByTier(Map<String, FruitData> fruitData) {
@@ -115,7 +114,6 @@ public class AvailableFruitsEmbedGenerator {
 		/**
 	 * Automatically sort fruits either by tier or alphabetically based on pre-defined config values
 	 * 
-	 * @param fruitData
 	 * @return A list of sorted FruitData
 	 */
 	private List<FruitData> sortFruits(Map<String, FruitData> fruitData) {
@@ -154,7 +152,6 @@ public class AvailableFruitsEmbedGenerator {
 	/**
 	 * Generates a formatted string based on pre-defined config values.
 	 * 
-	 * @param fruitEntry
 	 * @return A formatted string
 	 */
 	private String formatWithDecoration(FruitData fruitEmbedEntry) {
@@ -182,7 +179,7 @@ public class AvailableFruitsEmbedGenerator {
 
 		if (CommonConfig.INSTANCE.showStatus()) {
 			LOGGER.debug("Status addition requested. Adding formatting for df fruit status");
-			ExtendedWorldData worldData = ExtendedWorldData.get();
+			OFPWWorldData worldData = OFPWWorldData.get();
 			if(worldData == null) {
 				throw new IllegalStateException(REPORT_ERROR_HERE);
 			}
