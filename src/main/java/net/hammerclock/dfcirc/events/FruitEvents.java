@@ -88,7 +88,7 @@ public final class FruitEvents {
 
 		if (extendedWorldData != null) {
 			for (AkumaNoMiItem fruit : ModValues.DEVIL_FRUITS) {
-				OneFruitEntry entry = extendedWorldData.getOneFruitEntry(new ResourceLocation(fruit.getFruitKey()));
+				OneFruitEntry entry = extendedWorldData.getOneFruitEntry(fruit.getRegistryName());
 				OneFruitEntry.Status status;
 
 				if (entry == null) {
